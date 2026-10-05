@@ -175,7 +175,7 @@
 
   /* === Welcome screen === */
   .welcome{position:fixed;inset:0;z-index:80;background:var(--ink);display:flex;flex-direction:column;overflow-y:auto;padding:calc(env(safe-area-inset-top)+28px) 22px calc(env(safe-area-inset-bottom)+28px)}
-  .welcome.hidden{display:none}
+  .welcome.hidden{display:none!important}
   .welcome-logo{font-size:48px;margin-bottom:8px;line-height:1;text-align:center}
   .welcome h2{color:#fff;font-size:24px;font-weight:800;margin:0 0 5px;text-align:center}
   .welcome .sub{color:#A9BBD4;font-size:13.5px;margin:0 0 20px;line-height:1.5;text-align:center}
@@ -191,6 +191,24 @@
   .welcome-start{margin-top:18px;width:100%;padding:16px;border-radius:14px;border:none;background:var(--amber);color:var(--ink);font-size:16px;font-weight:800}
   .welcome-start:active{transform:scale(.97)}
   .welcome-skip{margin-top:10px;width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#8FA0B5;font-size:13px;font-weight:600}
+
+  /* === Suivi des primes === */
+  .suivi-bloc{border-radius:14px;padding:14px;margin-bottom:10px}
+  .suivi-bloc.repas{background:rgba(30,138,122,.1);border:1px solid rgba(30,138,122,.25)}
+  .suivi-bloc.isao{background:rgba(201,130,27,.1);border:1px solid rgba(201,130,27,.25)}
+  .suivi-bloc.isse{background:rgba(91,107,214,.1);border:1px solid rgba(91,107,214,.2)}
+  .suivi-bloc.total{background:rgba(232,163,61,.1);border:1px solid rgba(232,163,61,.35)}
+  .suivi-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .suivi-head .t{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+  .suivi-head .v{font-size:22px;font-weight:800}
+  .suivi-bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:6px}
+  .suivi-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+  .suivi-bar-fill.ok{background:var(--teal)}
+  .suivi-bar-fill.warn{background:var(--amber)}
+  .suivi-bar-fill.nok{background:var(--danger)}
+  .suivi-detail{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+  .suivi-detail b{color:var(--text)}
+
 </style>
 </head>
 <body>
@@ -253,6 +271,8 @@
 
 <div class="tools">
   <button class="tbtn" id="btnSettings">⚙︎ Taux</button>
+  <button class="tbtn" id="btnSuivi">📊 Suivi</button>
+  <button class="tbtn" id="btnUpdate">↺ MAJ</button>
   <button class="tbtn" id="btnDoc">☰ Doc</button>
   <button class="tbtn" id="btnBackup">⇄ Sauv.</button>
   <button class="tbtn" id="btnImport">⤒ Import</button>
@@ -290,6 +310,20 @@
   <button class="welcome-skip" id="welcomeSkip">J'ai déjà des données, passer</button>
 </div>
 <!-- Sheet mission -->
+
+<!-- Sheet Suivi des primes -->
+<div class="overlay" id="ovSuivi">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3>📊 Suivi des indemnités</h3>
+    <p class="sub3" id="suiviPeriode"></p>
+    <div id="suiviContent"></div>
+    <div class="actions" style="margin-top:12px">
+      <button type="button" class="btn btn-ghost" id="suiviClose">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="ovM">
   <div class="sheet">
     <div class="grip"></div>
@@ -682,7 +716,14 @@
     var now=new Date(),y=now.getFullYear(),mo=now.getMonth()+1;
     var curYm=mo>=9?y:y-1, curMilIdx=mo>=9?mo-9:mo+3;
     var mois=Array(12).fill(0);
-    miss.forEach(function(m){ var d=m.debut||""; if(!d)return; var mp=milMonth(d); if(mp.ym!==selSoldeAnnee)return; mois[mp.idx]+=calc(m).volMin; });
+    miss.forEach(function(m){
+      (m.legs||[]).forEach(function(l){
+        var d=l.date||m.debut||""; if(!d)return;
+        var mp=milMonth(d);
+        if(mp.ym!==selSoldeAnnee)return;
+        mois[mp.idx]+=(l.jourMin||0)+(l.nuitMin||0);
+      });
+    });
     var totalMin=mois.reduce(function(a,b){return a+b;},0);
     var totalH=totalMin/60;
     var pct=Math.min(100,Math.round(totalH/SOLDE_ANN_H*100));
@@ -1168,7 +1209,60 @@
   });
 
   $("paysList").innerHTML=PAYS_RATES.map(function(e){var r=mealEUR(e);return "<option value=\""+e.n+"\">"+(r!=null?r.toFixed(2).replace(".",",")+" \u20AC/repas":e.c)+"</option>";}).join("");
-  attachSheetDrag($("ovM")); attachSheetDrag($("ovS")); attachSheetDrag($("ovD")); attachSheetDrag($("ovB"));
+  attachSheetDrag($("ovM")); attachSheetDrag($("ovS")); attachSheetDrag($("ovSuivi")); attachSheetDrag($("ovD")); attachSheetDrag($("ovB"));
+  /* === Suivi des primes === */
+  function renderSuivi(){
+    var t=totals();
+    var yr=selYear==="all"?"toutes les années":selYear;
+    $("suiviPeriode").textContent="Période : "+yr+" · "+t.eTotal.toLocaleString("fr-FR",{minimumFractionDigits:2})+" € prévus au total";
+
+    function bloc(cls,label,prevu,percu,unit){
+      var pct=prevu>0?Math.min(100,Math.round(percu/prevu*100)):0;
+      var fillCls=pct>=100?"ok":pct>=50?"warn":"nok";
+      var reste=Math.max(0,prevu-percu);
+      return "<div class='suivi-bloc "+cls+"'>"
+        +"<div class='suivi-head'><span class='t'>"+label+"</span><span class='v num'>"+euro(percu)+" <small style='font-size:13px;font-weight:600;color:var(--muted)'>/ "+euro(prevu)+"</small></span></div>"
+        +"<div class='suivi-bar'><div class='suivi-bar-fill "+fillCls+"' style='width:"+pct+"%'></div></div>"
+        +"<div class='suivi-detail'><span>"+pct+"% perçu</span><b>"+(reste>0?euro(reste)+" restants":"✓ Tout perçu")+"</b></div>"
+        +"</div>";
+    }
+
+    var html="";
+    if(t.eRepas>0) html+=bloc("repas","🍴 Repas",t.eRepas,t.remb,"€");
+    if(t.eIsao>0)  html+=bloc("isao","ISAO",t.eIsao,t.rembIsao,"€");
+    if(t.eIsse>0)  html+=bloc("isse","ISSE",t.eIsse,t.rembIsse,"€");
+    
+    var totalPercu=t.remb+t.rembIsao+t.rembIsse;
+    html+=bloc("total","💰 Total toutes primes",t.eTotal,totalPercu,"€");
+
+    // Missions avec solde partielle
+    var partial=miss.filter(inYear).filter(function(m){
+      var c=calc(m);
+      var rR=m.remb!=null&&m.remb!=="",rI=m.rembIsao!=null&&m.rembIsao!=="",rIs=m.rembIsse!=null&&m.rembIsse!=="";
+      var hasRepas=c.eRepas>0,hasIsao=c.eIsao>0,hasIsse=c.eIsse>0;
+      var nbDus=(hasRepas?1:0)+(hasIsao?1:0)+(hasIsse?1:0);
+      var nbTouches=(rR&&hasRepas?1:0)+(rI&&hasIsao?1:0)+(rIs&&hasIsse?1:0);
+      return nbDus>0&&nbTouches<nbDus;
+    });
+    if(partial.length>0){
+      html+="<div style='margin-top:4px'><span style='font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700'>"+partial.length+" mission"+(partial.length>1?"s":"")+" avec paiement incomplet</span>";
+      html+=partial.map(function(m){
+        var c=calc(m);
+        return "<div style='padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center'>"
+          +"<div><div style='font-size:14px;font-weight:600'>"+(m.lib||"Mission")+"</div>"
+          +"<div style='font-size:11.5px;color:var(--muted)'>"+(m.debut||"")+(m.fin&&m.fin!==m.debut?" → "+m.fin:"")+"</div></div>"
+          +"<div style='text-align:right'>"
+          +(c.eRepas>0?"<div style='font-size:11.5px;color:var(--muted)'>Repas "+(m.remb!=null&&m.remb!==""?"✓":"❌")+"</div>":"")
+          +(c.eIsao>0?"<div style='font-size:11.5px;color:var(--muted)'>ISAO "+(m.rembIsao!=null&&m.rembIsao!==""?"✓":"❌")+"</div>":"")
+          +(c.eIsse>0?"<div style='font-size:11.5px;color:var(--muted)'>ISSE "+(m.rembIsse!=null&&m.rembIsse!==""?"✓":"❌")+"</div>":"")
+          +"</div></div>";
+      }).join("")+"</div>";
+    }
+
+    if(!html) html="<p style='text-align:center;color:var(--muted);padding:24px 0'>Aucune indemnité calculée pour cette période.</p>";
+    $("suiviContent").innerHTML=html;
+  }
+
   renderAll();
 
   /* === Welcome screen === */
@@ -1180,6 +1274,28 @@
   var _ws=$("welcomeStart"),_wk=$("welcomeSkip");
   if(_ws)_ws.addEventListener("click",function(){closeWelcome(true);});
   if(_wk)_wk.addEventListener("click",function(){closeWelcome(false);});
+
+
+  /* === Bouton mise à jour === */
+  $("btnUpdate").addEventListener("click",function(){
+    var b=$("btnUpdate");
+    b.textContent="↺ …";
+    b.disabled=true;
+    if("serviceWorker" in navigator && navigator.serviceWorker.controller){
+      // Vider tous les caches et recharger
+      caches.keys().then(function(keys){
+        return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+      }).then(function(){
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          return Promise.all(regs.map(function(r){ return r.unregister(); }));
+        }).then(function(){
+          location.reload(true);
+        });
+      });
+    } else {
+      location.reload(true);
+    }
+  });
 
   /* === Service Worker === */
   if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}

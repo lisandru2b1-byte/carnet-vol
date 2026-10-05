@@ -1,7 +1,6 @@
-/* Carnet de vol — Service Worker v2 */
-var CACHE = "carnet-vol-v2";
+/* Carnet de vol — Service Worker v3 */
+var CACHE = "carnet-vol-v3";
 var ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
-
 self.addEventListener("install", function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(ASSETS); }));
   self.skipWaiting();
