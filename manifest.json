@@ -11,25 +11,24 @@
   "theme_color": "#0B1F3A",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='44' fill='%230B1F3A'/%3E%3Cpath d='M96 42l11 47 47 11-47 11-11 47-11-47-47-11 47-11z' fill='%23E8A33D'/%3E%3C/svg%3E",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%230B1F3A'/%3E%3Cpath d='M256 112l29 125 125 29-125 29-29 125-29-125-125-29 125-29z' fill='%23E8A33D'/%3E%3C/svg%3E",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["utilities", "productivity"],
   "shortcuts": [
     {
       "name": "Nouvelle mission",
       "short_name": "Mission",
-      "description": "Ajouter une mission",
-      "url": "./?action=new"
+      "url": "./?action=new",
+      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
     }
   ]
 }

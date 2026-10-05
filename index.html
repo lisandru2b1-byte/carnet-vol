@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Carnet de vol">
-<meta name="application-name" content="Carnet de vol">
+<meta name="apple-mobile-web-app-title" content="Carnet">
 <meta name="theme-color" content="#0B1F3A">
-<meta name="description" content="Carnet de vol militaire — vols, indemnités, remboursements. 100 % hors ligne.">
-<title>Carnet de vol</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230B1F3A'/%3E%3Cpath d='M90 38l10 44 44 10-44 10-10 44-10-44-44-10 44-10z' fill='%23E8A33D'/%3E%3C/svg%3E">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1F3A'/%3E%3Cpath d='M16 6l2 8 8 2-8 2-2 8-2-8-8-2 8-2z' fill='%23E8A33D'/%3E%3C/svg%3E">
+<title>Carnet de vol</title>
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <style>
   :root{
     --ink:#0B1F3A; --ink-2:#13294B; --paper:#EEF1F5; --card:#FFFFFF;
@@ -180,11 +178,12 @@
 <button class="fab" id="btnAdd" aria-label="Ajouter une mission">+</button>
 <div class="toast" id="toast"></div>
 
+
 <!-- Welcome screen -->
 <style>
-  .welcome{position:fixed;inset:0;z-index:80;background:var(--ink);display:flex;flex-direction:column;overflow-y:auto;padding:calc(env(safe-area-inset-top)+28px) 22px calc(env(safe-area-inset-bottom)+28px)}
+  .welcome{position:fixed;inset:0;z-index:80;background:#0B1F3A;display:flex;flex-direction:column;overflow-y:auto;padding:calc(env(safe-area-inset-top)+28px) 22px calc(env(safe-area-inset-bottom)+28px)}
   .welcome.hidden{display:none}
-  .welcome-logo{font-size:48px;margin-bottom:8px;line-height:1;text-align:center}
+  .welcome-logo{font-size:64px;line-height:1;text-align:center;margin-bottom:6px}
   .welcome h2{color:#fff;font-size:24px;font-weight:800;margin:0 0 5px;text-align:center}
   .welcome .sub{color:#A9BBD4;font-size:13.5px;margin:0 0 20px;line-height:1.5;text-align:center}
   .wsect{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6A8099;font-weight:700;margin:14px 0 7px}
@@ -193,10 +192,11 @@
   .wstep.bad{background:rgba(192,57,43,.11);border-color:rgba(192,57,43,.28)}
   .wstep .ic{font-size:20px;flex:0 0 auto;line-height:1;margin-top:1px}
   .wstep .wt b{display:block;color:#fff;font-size:13.5px;margin-bottom:3px}
-  .wstep .wt span{color:#A9BBD4;font-size:12.5px;line-height:1.55}
-  .wstep .wt ol{margin:6px 0 0;padding-left:16px;color:#A9BBD4;font-size:12.5px;line-height:1.8}
-  .wstep .wt code{background:rgba(255,255,255,.14);color:#fff;border-radius:5px;padding:1px 6px;font-size:12px;font-family:monospace}
-  .welcome-start{margin-top:18px;width:100%;padding:16px;border-radius:14px;border:none;background:var(--amber);color:var(--ink);font-size:16px;font-weight:800}
+  .wstep .wt span,.wstep .wt ol{color:#A9BBD4;font-size:12.5px;line-height:1.6}
+  .wstep .wt ol{margin:6px 0 0;padding-left:16px}
+  .wstep .wt ol li{margin-bottom:2px}
+  .wstep .wt code{background:rgba(255,255,255,.14);color:#fff;border-radius:5px;padding:1px 6px;font-size:12px}
+  .welcome-start{margin-top:18px;width:100%;padding:16px;border-radius:14px;border:none;background:#E8A33D;color:#0B1F3A;font-size:16px;font-weight:800}
   .welcome-start:active{transform:scale(.97)}
   .welcome-skip{margin-top:10px;width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#8FA0B5;font-size:13px;font-weight:600}
 </style>
@@ -206,7 +206,6 @@
   <p class="sub">Vols · Indemnités · Remboursements<br>100 % hors ligne</p>
 
   <div class="wsect">⚠️ Installe l'appli correctement</div>
-
   <div class="wstep bad">
     <div class="ic">🚫</div>
     <div class="wt">
@@ -214,61 +213,58 @@
       <span>Safari efface les données après 7 jours sans utilisation. Tes missions disparaîtraient.</span>
     </div>
   </div>
-
   <div class="wstep hi">
     <div class="ic">📱</div>
     <div class="wt">
       <b>iPhone — installer avec Chrome</b>
-      <span>Si tu n'as pas Chrome, télécharge-le d'abord sur l'App Store.</span>
+      <span>Télécharge Chrome depuis l'App Store si besoin, puis :</span>
       <ol>
-        <li>Ouvre <b>Chrome</b> sur ton iPhone</li>
-        <li>Tape l'adresse de l'appli dans la barre URL</li>
-        <li>Bouton <code>⋮</code> en bas à droite → <b>Ajouter à l'écran d'accueil</b></li>
-        <li>Confirme → l'icône ✈️ apparaît sur ton écran</li>
+        <li>Ouvre cette page dans <b>Chrome</b></li>
+        <li>Bouton <code>⋮</code> en bas à droite</li>
+        <li><b>Ajouter à l'écran d'accueil</b></li>
+        <li>L'icône 🇫🇷 apparaît sur ton écran</li>
       </ol>
     </div>
   </div>
-
   <div class="wstep hi">
     <div class="ic">🤖</div>
     <div class="wt">
       <b>Android — installer avec Chrome</b>
       <ol>
         <li>Ouvre cette page dans <b>Chrome</b></li>
-        <li>Bouton <code>⋮</code> en haut à droite → <b>Ajouter à l'écran d'accueil</b></li>
-        <li>Ou la bannière d'installation apparaît automatiquement en bas</li>
+        <li>Bouton <code>⋮</code> en haut à droite</li>
+        <li><b>Ajouter à l'écran d'accueil</b></li>
+        <li>Ou accepte la bannière d'installation en bas</li>
       </ol>
     </div>
   </div>
 
   <div class="wsect">Pour commencer</div>
-
   <div class="wstep">
     <div class="ic">⚙️</div>
     <div class="wt">
       <b>1 — Configure tes taux</b>
-      <span>Bouton ⚙︎ Taux → ISAO, ISSE, codes nature de service (30 → 2j/4n…), taux repas.</span>
+      <span>Bouton ⚙︎ Taux → ISAO, ISSE, codes nature de service (30 → 2j/4n…), taux repas par défaut.</span>
     </div>
   </div>
   <div class="wstep">
     <div class="ic">📄</div>
     <div class="wt">
       <b>2 — Importe ton carnet PDF</b>
-      <span>Bouton ⤒ Import → sélectionne ton carnet de vol PDF. Vols et codes créés automatiquement.</span>
+      <span>Bouton ⤒ Import → sélectionne ton PDF. Vols et codes créés automatiquement.</span>
     </div>
   </div>
   <div class="wstep">
     <div class="ic">💾</div>
     <div class="wt">
       <b>Sauvegarde régulièrement</b>
-      <span>Bouton ⇄ Sauv. → Exporter → garde ce fichier JSON précieusement. Il te permet de tout restaurer.</span>
+      <span>Bouton ⇄ Sauv. → Exporter → garde ce fichier JSON précieusement pour restaurer tes données.</span>
     </div>
   </div>
 
   <button class="welcome-start" id="welcomeStart">C'est parti → configurer mes taux</button>
   <button class="welcome-skip" id="welcomeSkip">J'ai déjà des données, passer</button>
 </div>
-
 <!-- Sheet mission -->
 <div class="overlay" id="ovM">
   <div class="sheet">
@@ -1069,23 +1065,29 @@
   attachSheetDrag($("ovM")); attachSheetDrag($("ovS")); attachSheetDrag($("ovD")); attachSheetDrag($("ovB"));
   renderAll();
 
-  /* === Welcome screen === */
-  var KWELCOME="cv_welcomed_v1";
-  function closeWelcome(openTaux){
-    $("welcome").classList.add("hidden");
-    save(KWELCOME,"1");
-    if(openTaux) setTimeout(function(){openS();},300);
-  }
-  if(!load(KWELCOME,null) && miss.length===0){
-    $("welcome").classList.remove("hidden");
-  }
-  $("welcomeStart").addEventListener("click",function(){closeWelcome(true);});
-  $("welcomeSkip").addEventListener("click",function(){closeWelcome(false);});
-
-  /* === Service Worker (PWA hors-ligne) === */
+  /* === Service Worker PWA === */
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(function(){});
   }
+
+  /* === Welcome screen (premier lancement) === */
+  var KWELCOME="cv_welcomed_v1";
+  function closeWelcome(openTaux){
+    var w=document.getElementById("welcome");
+    if(w) w.classList.add("hidden");
+    try{localStorage.setItem(KWELCOME,"1");}catch(e){}
+    if(openTaux) setTimeout(function(){openS();},300);
+  }
+  var _welcomed=false;
+  try{_welcomed=!!localStorage.getItem(KWELCOME);}catch(e){}
+  var w=document.getElementById("welcome");
+  if(w && !_welcomed && (!miss||miss.length===0)){
+    w.classList.remove("hidden");
+  }
+  var _ws=document.getElementById("welcomeStart");
+  var _wk=document.getElementById("welcomeSkip");
+  if(_ws) _ws.addEventListener("click",function(){closeWelcome(true);});
+  if(_wk) _wk.addEventListener("click",function(){closeWelcome(false);});
 })();
 </script>
 </body>
