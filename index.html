@@ -8,7 +8,10 @@
 <meta name="apple-mobile-web-app-title" content="Carnet">
 <meta name="theme-color" content="#0B1F3A">
 <title>Carnet de vol</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230B1F3A'/%3E%3Cpath d='M90 38l10 44 44 10-44 10-10 44-10-44-44-10 44-10z' fill='%23E8A33D'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <style>
   :root{
     --ink:#0B1F3A; --ink-2:#13294B; --paper:#EEF1F5; --card:#FFFFFF;
@@ -216,6 +219,7 @@
 </div>
 
 <div class="tools">
+  <button class="tbtn" id="btnUpdate" style="background:var(--amber);color:var(--ink);font-weight:800;border-color:var(--amber)">↺ MAJ</button>
   <button class="tbtn" id="btnSettings">⚙︎ Taux</button>
   <button class="tbtn" id="btnSuivi">📊 Suivi</button>
   <button class="tbtn" id="btnHelp">❓ Aide</button>
@@ -1274,6 +1278,26 @@
   renderAll();
   try{ if(!miss.length && !localStorage.getItem("cv_help_seen")) show($("ovHelp")); }catch(e){}
   try{ if(miss.length) setTimeout(autoBackupMaybe,1500); }catch(e){}
+
+  /* === Bouton MAJ : force la récupération de la dernière version === */
+  (function(){
+    var b=document.getElementById("btnUpdate");
+    if(!b) return;
+    b.addEventListener("click",function(){
+      b.textContent="↺ …"; b.disabled=true;
+      function reload(){ location.reload(true); }
+      if("caches" in window){
+        caches.keys().then(function(keys){ return Promise.all(keys.map(function(k){return caches.delete(k);})); })
+          .then(function(){
+            if("serviceWorker" in navigator){
+              navigator.serviceWorker.getRegistrations().then(function(regs){
+                Promise.all(regs.map(function(r){return r.unregister();})).then(reload).catch(reload);
+              }).catch(reload);
+            } else reload();
+          }).catch(reload);
+      } else reload();
+    });
+  })();
 })();
 </script>
 </body>
