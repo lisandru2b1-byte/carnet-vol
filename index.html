@@ -150,9 +150,80 @@
   .tag.t-ok-isse{background:rgba(91,107,214,.20);color:var(--night)}
   .strip.paid-all{border-left:3px solid var(--teal)}
   .strip.paid-part{border-left:3px solid var(--amber)}
+
+  /* === Solde à l'air === */
+  .solde-block{background:rgba(0,0,0,.25);border-radius:16px;padding:13px 14px;margin-top:10px}
+  .solde-title{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#A9BBD4;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .sel-annee{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;-webkit-appearance:none}
+  .solde-bar-wrap{margin-bottom:10px}
+  .solde-bar-label{display:flex;justify-content:space-between;font-size:11px;color:#A9BBD4;margin-bottom:4px}
+  .solde-bar-label b{color:#fff}
+  .solde-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
+  .solde-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+  .solde-bar-fill.ok{background:#1E8A7A}
+  .solde-bar-fill.warn{background:#E8A33D}
+  .solde-bar-fill.nok{background:#C0392B}
+  .solde-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .smth{border-radius:9px;padding:6px 4px;text-align:center;background:rgba(255,255,255,.06)}
+  .smth .sm{font-size:9.5px;text-transform:uppercase;color:#A9BBD4;letter-spacing:.04em;white-space:nowrap;display:block}
+  .smth .sh{font-size:14px;font-weight:700;line-height:1.2;display:block}
+  .smth.ok{background:rgba(30,138,122,.28)}
+  .smth.nok{background:rgba(192,57,43,.22)}
+  .smth.future{opacity:.55;border:1px dashed rgba(255,255,255,.12)}
+  .smth.empty{opacity:.35}
+
+
+  /* === Welcome screen === */
+  .welcome{position:fixed;inset:0;z-index:80;background:var(--ink);display:flex;flex-direction:column;overflow-y:auto;padding:calc(env(safe-area-inset-top)+28px) 22px calc(env(safe-area-inset-bottom)+28px)}
+  .welcome.hidden{display:none}
+  .welcome-logo{font-size:48px;margin-bottom:8px;line-height:1;text-align:center}
+  .welcome h2{color:#fff;font-size:24px;font-weight:800;margin:0 0 5px;text-align:center}
+  .welcome .sub{color:#A9BBD4;font-size:13.5px;margin:0 0 20px;line-height:1.5;text-align:center}
+  .wsect{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6A8099;font-weight:700;margin:14px 0 7px}
+  .wstep{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
+  .wstep.hi{background:rgba(232,163,61,.13);border-color:rgba(232,163,61,.28)}
+  .wstep.bad{background:rgba(192,57,43,.11);border-color:rgba(192,57,43,.28)}
+  .wstep .ic{font-size:20px;flex:0 0 auto;line-height:1;margin-top:1px}
+  .wstep .wt b{display:block;color:#fff;font-size:13.5px;margin-bottom:3px}
+  .wstep .wt span,.wstep .wt ol{color:#A9BBD4;font-size:12.5px;line-height:1.6}
+  .wstep .wt ol{margin:6px 0 0;padding-left:16px}
+  .wstep .wt code{background:rgba(255,255,255,.14);color:#fff;border-radius:5px;padding:1px 6px;font-size:12px}
+  .welcome-start{margin-top:18px;width:100%;padding:16px;border-radius:14px;border:none;background:var(--amber);color:var(--ink);font-size:16px;font-weight:800}
+  .welcome-start:active{transform:scale(.97)}
+  .welcome-skip{margin-top:10px;width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#8FA0B5;font-size:13px;font-weight:600}
 </style>
 </head>
 <body>
+
+<!-- Welcome screen -->
+<div class="welcome hidden" id="welcome">
+  <div class="welcome-logo">✈️</div>
+  <h2>Carnet de vol</h2>
+  <p class="sub">Vols · Indemnités · Remboursements<br>100 % hors ligne</p>
+  <div class="wsect">⚠️ Installe l'appli correctement</div>
+  <div class="wstep bad">
+    <div class="ic">🚫</div>
+    <div class="wt"><b>N'utilise pas Safari</b><span>Safari efface les données après 7 jours. Utilise Chrome.</span></div>
+  </div>
+  <div class="wstep hi">
+    <div class="ic">📱</div>
+    <div class="wt"><b>iPhone — Chrome</b>
+      <ol><li>Ouvre cette page dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
+    </div>
+  </div>
+  <div class="wstep hi">
+    <div class="ic">🤖</div>
+    <div class="wt"><b>Android — Chrome</b>
+      <ol><li>Ouvre dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
+    </div>
+  </div>
+  <div class="wsect">Pour commencer</div>
+  <div class="wstep"><div class="ic">⚙️</div><div class="wt"><b>1 — Configure tes taux</b><span>Bouton ⚙︎ Taux → ISAO, ISSE, codes (30→2j/4n…), taux repas.</span></div></div>
+  <div class="wstep"><div class="ic">📄</div><div class="wt"><b>2 — Importe ton carnet PDF</b><span>Bouton ⤒ Import → PDF → vols créés automatiquement.</span></div></div>
+  <div class="wstep"><div class="ic">💾</div><div class="wt"><b>Sauvegarde régulièrement</b><span>Bouton ⇄ Sauv. → Exporter → garde ce fichier JSON.</span></div></div>
+  <button class="welcome-start" id="welcomeStart">C'est parti → configurer mes taux</button>
+  <button class="welcome-skip" id="welcomeSkip">J'ai déjà des données, passer</button>
+</div>
 
 <header>
   <div class="brand">
@@ -192,9 +263,6 @@
 <button class="fab" id="btnAdd" aria-label="Ajouter une mission">+</button>
 <div class="toast" id="toast"></div>
 
-<!-- Welcome screen -->
-<div class="welcome hidden" id="welcome">
-  <div class="welcome-logo">✈️</div>
   <h2>Carnet de vol</h2>
   <p class="sub">Vols · Indemnités · Remboursements<br>100 % hors ligne</p>
   <div class="wsect">⚠️ Installe l'appli correctement</div>
