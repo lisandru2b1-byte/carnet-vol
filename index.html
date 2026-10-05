@@ -859,6 +859,7 @@
     save(KEY,miss);
     selYear=obj.debut.slice(0,4);
     hide($("ovM")); renderAll();
+    autoBackupMaybe();
   }
   var delArmed=false, delTimer=null;
   function resetDelBtn(){
@@ -1195,6 +1196,25 @@
         .catch(function(){ alert("Échec : mot de passe incorrect ou fichier corrompu."); });
     });
   }
+
+  /* === Sauvegarde automatique silencieuse (fichier local, survit au vidage de Chrome) === */
+  var KAUTOBK="cv_autobk_date";
+  function autoBackupMaybe(){
+    try{
+      var today_=new Date().toISOString().slice(0,10);
+      if(localStorage.getItem(KAUTOBK)===today_) return; // déjà fait aujourd'hui
+      var txt=bkData();
+      var b=new Blob([txt],{type:"application/json"});
+      var a=document.createElement("a");
+      a.href=URL.createObjectURL(b);
+      a.download="carnet-vol-auto-"+today_+".json";
+      a.style.display="none";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){URL.revokeObjectURL(a.href);},1500);
+      localStorage.setItem(KAUTOBK,today_);
+    }catch(e){ /* silencieux : une sauvegarde manuelle reste possible via ⇄ Sauv. */ }
+  }
+
   function bkData(){return JSON.stringify({app:"carnet-vol",v:4,date:new Date().toISOString(),miss:load(KEY,[]),taux:load(KSET,{}),doc:load(KDOC,""),fx:load(KFX,{})});}
   var _bkArmed=false;
   function bkApply(txt,msgEl){
@@ -1253,6 +1273,7 @@
   attachSheetDrag($("ovM")); attachSheetDrag($("ovS")); attachSheetDrag($("ovD")); attachSheetDrag($("ovB")); attachSheetDrag($("ovSuivi")); attachSheetDrag($("ovHelp"));
   renderAll();
   try{ if(!miss.length && !localStorage.getItem("cv_help_seen")) show($("ovHelp")); }catch(e){}
+  try{ if(miss.length) setTimeout(autoBackupMaybe,1500); }catch(e){}
 })();
 </script>
 </body>
