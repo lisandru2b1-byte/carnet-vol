@@ -7,9 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Carnet">
 <meta name="theme-color" content="#0B1F3A">
-<link rel="manifest" href="manifest.json">
 <title>Carnet de vol</title>
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230B1F3A'/%3E%3Cpath d='M90 38l10 44 44 10-44 10-10 44-10-44-44-10 44-10z' fill='%23E8A33D'/%3E%3C/svg%3E">
 <style>
   :root{
     --ink:#0B1F3A; --ink-2:#13294B; --paper:#EEF1F5; --card:#FFFFFF;
@@ -53,6 +52,29 @@
   .gauge.big .val{color:var(--amber);font-size:29px}
   .reimb{margin-top:9px;font-size:12.5px;color:#A9BBD4;text-align:center}
   .reimb b{color:#fff}
+  /* === solde à l'air === */
+  .solde-block{background:rgba(0,0,0,.25);border-radius:16px;padding:13px 14px;margin-top:10px}
+  .solde-title{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#A9BBD4;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .solde-title .sel-annee{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;-webkit-appearance:none}
+  /* barre annuelle */
+  .solde-bar-wrap{margin-bottom:10px}
+  .solde-bar-label{display:flex;justify-content:space-between;font-size:11px;color:#A9BBD4;margin-bottom:4px}
+  .solde-bar-label b{color:#fff}
+  .solde-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
+  .solde-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+  .solde-bar-fill.ok{background:#1E8A7A}
+  .solde-bar-fill.warn{background:#E8A33D}
+  .solde-bar-fill.nok{background:#C0392B}
+  /* grille mensuelle 4×3 */
+  .solde-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .smth{border-radius:9px;padding:6px 4px;text-align:center;background:rgba(255,255,255,.06)}
+  .smth .sm{font-size:9.5px;text-transform:uppercase;color:#A9BBD4;letter-spacing:.04em;white-space:nowrap}
+  .smth .sh{font-size:14px;font-weight:700;line-height:1.2}
+  .smth.ok{background:rgba(30,138,122,.28)}
+  .smth.warn{background:rgba(232,163,61,.22)}
+  .smth.nok{background:rgba(192,57,43,.22)}
+  .smth.empty{opacity:.35}
+  .smth.future{opacity:.55;border:1px dashed rgba(255,255,255,.12)}
 
   .wrap{padding:16px}
   .row-head{display:flex;align-items:baseline;justify-content:space-between;margin:6px 2px 10px}
@@ -79,6 +101,10 @@
   .tag.t-isao{background:rgba(201,130,27,.16);color:var(--amber-deep)}
   .tag.t-isse{background:rgba(30,138,122,.14);color:var(--teal)}
   .tag.t-ok{background:rgba(30,138,122,.18);color:var(--teal)}
+  .tag.t-ok-isao{background:rgba(201,130,27,.22);color:var(--amber-deep)}
+  .tag.t-ok-isse{background:rgba(91,107,214,.20);color:var(--night)}
+  .strip.paid-all{border-left:3px solid var(--teal)}
+  .strip.paid-part{border-left:3px solid var(--amber)}
   .strip .end{flex:0 0 auto;text-align:right}
   .strip .end .h{font-size:17px;font-weight:700}
   .strip .end .a{font-size:10.5px;color:var(--muted)}
@@ -145,103 +171,23 @@
   .set-row .sl small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
   .set-row input{width:92px;text-align:right}
   .set-grp{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-deep);font-weight:700;margin:16px 0 2px}
-
-  .tag.t-ok-isao{background:rgba(201,130,27,.22);color:var(--amber-deep)}
-  .tag.t-ok-isse{background:rgba(91,107,214,.20);color:var(--night)}
-  .strip.paid-all{border-left:3px solid var(--teal)}
-  .strip.paid-part{border-left:3px solid var(--amber)}
-
-  /* === Solde à l'air === */
-  .solde-block{background:rgba(0,0,0,.25);border-radius:16px;padding:13px 14px;margin-top:10px}
-  .solde-title{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#A9BBD4;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-  .sel-annee{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;-webkit-appearance:none}
-  .solde-bar-wrap{margin-bottom:10px}
-  .solde-bar-label{display:flex;justify-content:space-between;font-size:11px;color:#A9BBD4;margin-bottom:4px}
-  .solde-bar-label b{color:#fff}
-  .solde-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
-  .solde-bar-fill{height:100%;border-radius:4px;transition:width .4s}
-  .solde-bar-fill.ok{background:#1E8A7A}
-  .solde-bar-fill.warn{background:#E8A33D}
-  .solde-bar-fill.nok{background:#C0392B}
-  .solde-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-  .smth{border-radius:9px;padding:6px 4px;text-align:center;background:rgba(255,255,255,.06)}
-  .smth .sm{font-size:9.5px;text-transform:uppercase;color:#A9BBD4;letter-spacing:.04em;white-space:nowrap;display:block}
-  .smth .sh{font-size:14px;font-weight:700;line-height:1.2;display:block}
-  .smth.ok{background:rgba(30,138,122,.28)}
-  .smth.nok{background:rgba(192,57,43,.22)}
-  .smth.future{opacity:.55;border:1px dashed rgba(255,255,255,.12)}
-  .smth.empty{opacity:.35}
-
-
-  /* === Welcome screen === */
-  .welcome{position:fixed;inset:0;z-index:80;background:var(--ink);display:flex;flex-direction:column;overflow-y:auto;padding:calc(env(safe-area-inset-top)+28px) 22px calc(env(safe-area-inset-bottom)+28px)}
-  .welcome.hidden{display:none!important}
-  .welcome-logo{font-size:48px;margin-bottom:8px;line-height:1;text-align:center}
-  .welcome h2{color:#fff;font-size:24px;font-weight:800;margin:0 0 5px;text-align:center}
-  .welcome .sub{color:#A9BBD4;font-size:13.5px;margin:0 0 20px;line-height:1.5;text-align:center}
-  .wsect{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6A8099;font-weight:700;margin:14px 0 7px}
-  .wstep{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
-  .wstep.hi{background:rgba(232,163,61,.13);border-color:rgba(232,163,61,.28)}
-  .wstep.bad{background:rgba(192,57,43,.11);border-color:rgba(192,57,43,.28)}
-  .wstep .ic{font-size:20px;flex:0 0 auto;line-height:1;margin-top:1px}
-  .wstep .wt b{display:block;color:#fff;font-size:13.5px;margin-bottom:3px}
-  .wstep .wt span,.wstep .wt ol{color:#A9BBD4;font-size:12.5px;line-height:1.6}
-  .wstep .wt ol{margin:6px 0 0;padding-left:16px}
-  .wstep .wt code{background:rgba(255,255,255,.14);color:#fff;border-radius:5px;padding:1px 6px;font-size:12px}
-  .welcome-start{margin-top:18px;width:100%;padding:16px;border-radius:14px;border:none;background:var(--amber);color:var(--ink);font-size:16px;font-weight:800}
-  .welcome-start:active{transform:scale(.97)}
-  .welcome-skip{margin-top:10px;width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#8FA0B5;font-size:13px;font-weight:600}
-
-  /* === Suivi des primes === */
-  .suivi-bloc{border-radius:14px;padding:14px;margin-bottom:10px}
-  .suivi-bloc.repas{background:rgba(30,138,122,.1);border:1px solid rgba(30,138,122,.25)}
-  .suivi-bloc.isao{background:rgba(201,130,27,.1);border:1px solid rgba(201,130,27,.25)}
-  .suivi-bloc.isse{background:rgba(91,107,214,.1);border:1px solid rgba(91,107,214,.2)}
-  .suivi-bloc.total{background:rgba(232,163,61,.1);border:1px solid rgba(232,163,61,.35)}
-  .suivi-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-  .suivi-head .t{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
-  .suivi-head .v{font-size:22px;font-weight:800}
+  .suivi-bloc{border-radius:14px;padding:13px 14px;margin-bottom:10px;border:1px solid var(--line);background:var(--paper)}
+  .suivi-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px}
+  .suivi-head .t{font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+  .suivi-head .v{font-size:18px;font-weight:800}
+  .suivi-head .v small{font-size:12px;font-weight:600;color:var(--muted)}
   .suivi-bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:6px}
-  .suivi-bar-fill{height:100%;border-radius:4px;transition:width .4s}
-  .suivi-bar-fill.ok{background:var(--teal)}
-  .suivi-bar-fill.warn{background:var(--amber)}
-  .suivi-bar-fill.nok{background:var(--danger)}
+  .suivi-fill{height:100%;border-radius:4px}
+  .suivi-fill.ok{background:var(--teal)} .suivi-fill.warn{background:var(--amber)} .suivi-fill.nok{background:var(--danger)}
   .suivi-detail{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
   .suivi-detail b{color:var(--text)}
-
+  .help b{display:block;font-size:14.5px;margin:14px 0 4px}
+  .help b:first-child{margin-top:0}
+  .help p{margin:0;font-size:13.5px;line-height:1.5;color:var(--muted)}
+  .help p b{display:inline;font-size:inherit;margin:0;color:var(--text)}
 </style>
 </head>
 <body>
-
-<!-- Welcome screen -->
-<div class="welcome hidden" id="welcome">
-  <div class="welcome-logo">✈️</div>
-  <h2>Carnet de vol</h2>
-  <p class="sub">Vols · Indemnités · Remboursements<br>100 % hors ligne</p>
-  <div class="wsect">⚠️ Installe l'appli correctement</div>
-  <div class="wstep bad">
-    <div class="ic">🚫</div>
-    <div class="wt"><b>N'utilise pas Safari</b><span>Safari efface les données après 7 jours. Utilise Chrome.</span></div>
-  </div>
-  <div class="wstep hi">
-    <div class="ic">📱</div>
-    <div class="wt"><b>iPhone — Chrome</b>
-      <ol><li>Ouvre cette page dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
-    </div>
-  </div>
-  <div class="wstep hi">
-    <div class="ic">🤖</div>
-    <div class="wt"><b>Android — Chrome</b>
-      <ol><li>Ouvre dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
-    </div>
-  </div>
-  <div class="wsect">Pour commencer</div>
-  <div class="wstep"><div class="ic">⚙️</div><div class="wt"><b>1 — Configure tes taux</b><span>Bouton ⚙︎ Taux → ISAO, ISSE, codes (30→2j/4n…), taux repas.</span></div></div>
-  <div class="wstep"><div class="ic">📄</div><div class="wt"><b>2 — Importe ton carnet PDF</b><span>Bouton ⤒ Import → PDF → vols créés automatiquement.</span></div></div>
-  <div class="wstep"><div class="ic">💾</div><div class="wt"><b>Sauvegarde régulièrement</b><span>Bouton ⇄ Sauv. → Exporter → garde ce fichier JSON.</span></div></div>
-  <button class="welcome-start" id="welcomeStart">C'est parti → configurer mes taux</button>
-  <button class="welcome-skip" id="welcomeSkip">J'ai déjà des données, passer</button>
-</div>
 
 <header>
   <div class="brand">
@@ -272,7 +218,7 @@
 <div class="tools">
   <button class="tbtn" id="btnSettings">⚙︎ Taux</button>
   <button class="tbtn" id="btnSuivi">📊 Suivi</button>
-  <button class="tbtn" id="btnUpdate">↺ MAJ</button>
+  <button class="tbtn" id="btnHelp">❓ Aide</button>
   <button class="tbtn" id="btnDoc">☰ Doc</button>
   <button class="tbtn" id="btnBackup">⇄ Sauv.</button>
   <button class="tbtn" id="btnImport">⤒ Import</button>
@@ -283,47 +229,7 @@
 <button class="fab" id="btnAdd" aria-label="Ajouter une mission">+</button>
 <div class="toast" id="toast"></div>
 
-  <h2>Carnet de vol</h2>
-  <p class="sub">Vols · Indemnités · Remboursements<br>100 % hors ligne</p>
-  <div class="wsect">⚠️ Installe l'appli correctement</div>
-  <div class="wstep bad">
-    <div class="ic">🚫</div>
-    <div class="wt"><b>N'utilise pas Safari</b><span>Safari efface les données après 7 jours. Utilise Chrome.</span></div>
-  </div>
-  <div class="wstep hi">
-    <div class="ic">📱</div>
-    <div class="wt"><b>iPhone — Chrome</b>
-      <ol><li>Ouvre cette page dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
-    </div>
-  </div>
-  <div class="wstep hi">
-    <div class="ic">🤖</div>
-    <div class="wt"><b>Android — Chrome</b>
-      <ol><li>Ouvre dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
-    </div>
-  </div>
-  <div class="wsect">Pour commencer</div>
-  <div class="wstep"><div class="ic">⚙️</div><div class="wt"><b>1 — Configure tes taux</b><span>Bouton ⚙︎ Taux → ISAO, ISSE, codes (30→2j/4n…), taux repas.</span></div></div>
-  <div class="wstep"><div class="ic">📄</div><div class="wt"><b>2 — Importe ton carnet PDF</b><span>Bouton ⤒ Import → PDF → vols créés automatiquement.</span></div></div>
-  <div class="wstep"><div class="ic">💾</div><div class="wt"><b>Sauvegarde régulièrement</b><span>Bouton ⇄ Sauv. → Exporter → garde ce fichier JSON.</span></div></div>
-  <button class="welcome-start" id="welcomeStart">C'est parti → configurer mes taux</button>
-  <button class="welcome-skip" id="welcomeSkip">J'ai déjà des données, passer</button>
-</div>
 <!-- Sheet mission -->
-
-<!-- Sheet Suivi des primes -->
-<div class="overlay" id="ovSuivi">
-  <div class="sheet">
-    <div class="grip"></div>
-    <h3>📊 Suivi des indemnités</h3>
-    <p class="sub3" id="suiviPeriode"></p>
-    <div id="suiviContent"></div>
-    <div class="actions" style="margin-top:12px">
-      <button type="button" class="btn btn-ghost" id="suiviClose">Fermer</button>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="ovM">
   <div class="sheet">
     <div class="grip"></div>
@@ -457,27 +363,61 @@
 </div>
 
 <!-- Sheet sauvegarde / transfert -->
+<div class="overlay" id="ovSuivi">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3>📊 Suivi des indemnités</h3>
+    <p class="sub3" id="suiviPeriode"></p>
+    <div id="suiviContent"></div>
+    <div class="actions" style="margin-top:12px"><button type="button" class="btn btn-ghost" id="suiviClose">Fermer</button></div>
+  </div>
+</div>
+<div class="overlay" id="ovHelp">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3>❓ Guide du carnet</h3>
+    <p class="sub3">Tout se fait sur ton téléphone, sans connexion. Rien n'est envoyé sur internet.</p>
+    <div class="help">
+      <b>📱 Installer l'appli</b>
+      <p>Ouvre la page dans <b>Chrome</b> → menu <b>⋯</b> → « Ajouter à l'écran d'accueil ». Évite Safari : il peut effacer les données après 7 jours sans utilisation.</p>
+      <b>⚙︎ 1. Régler tes taux (une seule fois)</b>
+      <p>Bouton <b>Taux</b> : montant d'un taux ISAO, nombre de taux par découché (2), ISSE par jour, taux repas par défaut, et la table des <b>codes</b> (ex. code 30 → coef jour 2 / nuit 4) qui sert au calcul des annuités.</p>
+      <b>⤒ 2. Importer ton carnet de vol</b>
+      <p>Bouton <b>Import</b> → ton PDF ou CSV de carnet de vol. Les vols sont créés automatiquement, sans doublon si tu réimportes.</p>
+      <b>＋ 3. Compléter une mission</b>
+      <p>Touche une mission (ou ＋) : dates d'arrivée/départ, legs (date, code, heures jour/nuit), repas par pays, découchés et case « Éligible ISSE ».</p>
+      <b>💶 4. Suivre les paiements</b>
+      <p>En bas de la mission, saisis ce que tu as perçu (repas, ISAO, ISSE). Bord vert = tout perçu, orange = partiel. Le bouton <b>Suivi</b> résume ce qui reste à percevoir.</p>
+      <b>✈️ Solde à l'air</b>
+      <p>Le tableau compte tes heures de septembre à août, mois par mois, selon la date de chaque leg (minimum 5 h/mois, 40 h/an).</p>
+      <b>⇄ Sauvegarder / changer de téléphone</b>
+      <p>Bouton <b>Sauv.</b> → « Copier mes données », puis sur l'autre appareil → colle dans la case 2 → Restaurer. Fais-le de temps en temps pour garder une copie.</p>
+      <b>↔ Supprimer une mission</b>
+      <p>Glisse la mission vers la gauche.</p>
+    </div>
+    <div class="actions" style="margin-top:12px"><button type="button" class="btn btn-primary" id="helpClose">J'ai compris</button></div>
+  </div>
+</div>
 <div class="overlay" id="ovB">
   <div class="sheet">
     <div class="grip"></div>
     <h3>⇄ Sauvegarde &amp; transfert</h3>
-    <p class="sub3">Exporte tes données pour les transférer vers Chrome / GitHub Pages.</p>
-    <div id="bkExportSection">
-      <button type="button" class="btn btn-primary" id="bkExport" style="width:100%;margin-bottom:10px">📋 Afficher mes données à copier</button>
-      <p class="hint">Appuie → sélectionne tout → copie → colle dans Chrome (⇄ Sauv. → Coller &amp; restaurer).</p>
+    <p class="sub3">Pour passer tes missions d'un appareil ou d'une version à l'autre (ex. Documents → GitHub/Chrome).</p>
+    <span class="seclab">1 · Sur l'ancienne version : copier</span>
+    <button type="button" class="btn btn-primary" id="bkShow" style="width:100%">📋 Copier mes données</button>
+    <p class="hint" id="bkCopyMsg" style="margin:8px 0 0"></p>
+    <textarea id="bkOut" readonly style="display:none;width:100%;height:90px;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--text);font-size:11px;font-family:monospace"></textarea>
+    <span class="seclab" style="margin-top:16px">2 · Sur la nouvelle version : coller</span>
+    <textarea id="bkIn" placeholder="Colle ici le texte copié…" style="width:100%;height:90px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--text);font-size:11px;font-family:monospace"></textarea>
+    <button type="button" class="btn btn-primary" id="bkRestore" style="width:100%;margin-top:8px">📥 Restaurer ces données</button>
+    <p class="hint" id="bkInMsg" style="margin:8px 0 0"></p>
+    <span class="seclab" style="margin-top:16px">Ou par fichier</span>
+    <div style="display:flex;gap:8px">
+      <button type="button" class="btn btn-ghost" id="bkExport" style="flex:1">⤓ Fichier .json</button>
+      <button type="button" class="btn btn-ghost" id="bkImport" style="flex:1">📂 Ouvrir un fichier</button>
     </div>
-    <div id="bkDataSection" style="display:none">
-      <p class="hint" style="margin-bottom:6px">Appuie longuement → <b>Sélectionner tout</b> → <b>Copier</b></p>
-      <textarea id="bkDataText" readonly style="width:100%;height:130px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--text);font-size:11px;font-family:monospace;resize:none"></textarea>
-      <button type="button" class="btn btn-primary" id="bkCopyBtn" style="width:100%;margin-top:8px">📋 Copier dans le presse-papier</button>
-      <p class="hint" id="bkCopyStatus" style="text-align:center;margin-top:6px"></p>
-    </div>
-    <div style="height:1px;background:var(--line);margin:14px 0"></div>
-    <button type="button" class="btn btn-ghost" id="bkImport" style="width:100%;margin-bottom:8px">📥 Restaurer depuis un fichier</button>
-    <button type="button" class="btn btn-ghost" id="bkPasteBtn" style="width:100%">📋 Coller &amp; restaurer</button>
-    <input type="file" id="bkFile" accept=".json,.cvbak,text/plain" style="display:none">
-    <p class="hint" style="margin-top:10px">« Coller &amp; restaurer » : colle le texte copié depuis l'ancienne version.</p>
-    <div class="actions" style="margin-top:8px"><button type="button" class="btn btn-ghost" id="bkClose">Fermer</button></div>
+    <input type="file" id="bkFile" accept=".json,.cvbak,application/json,text/plain" style="display:none">
+    <div class="actions" style="margin-top:12px"><button type="button" class="btn btn-ghost" id="bkClose">Fermer</button></div>
   </div>
 </div>
 
@@ -571,6 +511,92 @@
 
   /* ---- année ---- */
   var selYear="";
+  /* === Solde à l'air : année militaire sept→août === */
+  var SOLDE_MIN_H=5, SOLDE_ANN_H=40; /* seuils réglables */
+  /* mois de l'année militaire : [0]=sept, [1]=oct … [11]=août */
+  var MIL_MONTHS=["sept.","oct.","nov.","déc.","janv.","févr.","mars","avr.","mai","juin","juil.","août"];
+  var selSoldeAnnee=""; /* ex. "2024" = sept 2024 → août 2025 */
+  function soldeYears(){
+    /* liste des années militaires présentes dans les missions */
+    var ys={};
+    miss.forEach(function(m){
+      var d=m.debut||""; if(!d)return;
+      var y=parseInt(d.slice(0,4),10), mo=parseInt(d.slice(5,7),10);
+      /* avant sept → année mil précédente */
+      var ym=String(mo>=9?y:y-1);
+      ys[ym]=1;
+    });
+    var arr=Object.keys(ys).filter(Boolean).sort().reverse();
+    var now=new Date(), y=now.getFullYear(), mo=now.getMonth()+1;
+    var curYm=String(mo>=9?y:y-1);
+    if(arr.indexOf(curYm)<0)arr.unshift(curYm);
+    return arr;
+  }
+  function buildSoldeSelect(){
+    var arr=soldeYears(), s=$("soldeAnnee");
+    if(!selSoldeAnnee||arr.indexOf(selSoldeAnnee)<0)selSoldeAnnee=arr[0];
+    s.innerHTML=arr.map(function(y){return "<option value='"+y+"'>Sept "+y+" – Août "+(+y+1)+"</option>";}).join("");
+    s.value=selSoldeAnnee;
+  }
+  function milMonth(dateISO){
+    /* renvoie l'index 0-11 dans l'année militaire (0=sept…11=août) et l'année mil de la mission */
+    var y=parseInt(dateISO.slice(0,4),10), mo=parseInt(dateISO.slice(5,7),10);
+    var ym=mo>=9?y:y-1;
+    var idx=mo>=9?mo-9:mo+3; /* sept=0, oct=1 … août=11 */
+    return {ym:String(ym),idx:idx};
+  }
+  function renderSolde(){
+    buildSoldeSelect();
+    var now=new Date(), y=now.getFullYear(), mo=now.getMonth()+1;
+    var curYm=mo>=9?y:y-1;
+    var curMilIdx=mo>=9?mo-9:mo+3;
+    /* accumuler les minutes par mois militaire */
+    var mois=Array(12).fill(0); /* minutes */
+    miss.forEach(function(m){
+      (m.legs||[]).forEach(function(l){
+        var d=l.date||m.debut||""; if(!d)return;
+        var mp=milMonth(d);
+        if(mp.ym!==selSoldeAnnee)return;
+        mois[mp.idx]+=(l.jourMin||0)+(l.nuitMin||0);
+      });
+    });
+    var totalMin=mois.reduce(function(a,b){return a+b;},0);
+    var totalH=totalMin/60;
+    var pct=Math.min(100,Math.round(totalH/SOLDE_ANN_H*100));
+    var fillCls=totalH>=SOLDE_ANN_H?"ok":(totalH>=SOLDE_ANN_H*0.6?"warn":"nok");
+    $("soldeTotal").textContent=hm(totalMin);
+    $("soldeFill").className="solde-bar-fill "+fillCls;
+    $("soldeFill").style.width=pct+"%";
+    /* statut */
+    var restante=Math.max(0,SOLDE_ANN_H*60-totalMin);
+    $("soldeStatus").textContent=totalH>=SOLDE_ANN_H?"✓ Solde débloquée":hm(restante)+" restants";
+    /* grille mensuelle */
+    var isSoldeYearCurrent=(selSoldeAnnee===String(curYm));
+    $("soldeGrid").innerHTML=MIL_MONTHS.map(function(mName,i){
+      /* année calendaire réelle du mois */
+      var calYear=i<=3?+selSoldeAnnee:(+selSoldeAnnee+1);
+      var calMo=i<=3?i+9:i-3; /* sept=9…août=8 */
+      var min=mois[i];
+      var h=min/60;
+      var isFuture=isSoldeYearCurrent&&(i>curMilIdx);
+      var isPast=!isFuture&&(isSoldeYearCurrent?i<curMilIdx:true);
+      var isCurrent=isSoldeYearCurrent&&i===curMilIdx;
+      var cls="smth";
+      if(min>0){
+        cls+=" "+(h>=SOLDE_MIN_H?"ok":(h>0?"nok":""));
+      } else if(isFuture){
+        cls+=" future";
+      } else if(isPast||isCurrent){
+        cls+=" nok"; /* mois passé sans heure */
+      } else {
+        cls+=" empty";
+      }
+      return "<div class='"+cls+"'>"
+        +"<div class='sm'>"+mName+(isCurrent?" ◆":"")+"</div>"
+        +"<div class='sh num'>"+(min>0?hm(min):(isFuture?"—":"0h"))+"</div>"
+        +"</div>";
+    }).join("");
+  }
   function years(){
     var ys={}; miss.forEach(function(m){ys[(m.debut||"").slice(0,4)]=1;});
     var arr=Object.keys(ys).filter(Boolean).sort().reverse();
@@ -620,7 +646,9 @@
       t.volMin+=c.volMin; t.jMin+=c.jMin; t.nMin+=c.nMin; t.ann+=c.ann;
       t.midi+=c.totMidi; t.soir+=c.totSoir; t.dec+=m.dec||0; t.isaoTaux+=c.isaoTaux; t.isse+=c.isseJours;
       t.eRepas+=c.eRepas; t.eIsao+=c.eIsao; t.eIsse+=c.eIsse; t.eTotal+=c.eTotal;
-      if(m.remb!=null&&m.remb!==""){ t.remb+=(+m.remb||0); t.nbRemb++; }
+      if(m.remb!=null&&m.remb!=="")         t.remb    +=(+m.remb||0);
+      if(m.rembIsao!=null&&m.rembIsao!=="") t.rembIsao+=(+m.rembIsao||0);
+      if(m.rembIsse!=null&&m.rembIsse!=="") t.rembIsse+=(+m.rembIsse||0);
     });
     return t;
   }
@@ -669,7 +697,14 @@
       if(c.eRepas) tags+="<span class='tag'>repas "+euro(c.eRepas)+"</span>";
       if(c.eIsao) tags+="<span class='tag t-isao'>ISAO "+euro(c.eIsao)+"</span>";
       if(c.eIsse) tags+="<span class='tag t-isse'>ISSE "+euro(c.eIsse)+"</span>";
-      if(m.remb!=null&&m.remb!=="") tags+="<span class='tag t-ok'>✓ "+euro(+m.remb)+"</span>";
+      var hasRepas=(c.eRepas>0),hasIsao=(c.eIsao>0),hasIsse=(c.eIsse>0);
+      var rRepas=m.remb!=null&&m.remb!=="",rIsao=m.rembIsao!=null&&m.rembIsao!=="",rIsse=m.rembIsse!=null&&m.rembIsse!=="";
+      if(rRepas) tags+="<span class='tag t-ok'>✓ repas "+euro(+m.remb)+"</span>";
+      if(rIsao)  tags+="<span class='tag t-ok-isao'>✓ ISAO "+euro(+m.rembIsao)+"</span>";
+      if(rIsse)  tags+="<span class='tag t-ok-isse'>✓ ISSE "+euro(+m.rembIsse)+"</span>";
+      var nbDus=(hasRepas?1:0)+(hasIsao?1:0)+(hasIsse?1:0);
+      var nbTouches=(rRepas&&hasRepas?1:0)+(rIsao&&hasIsao?1:0)+(rIsse&&hasIsse?1:0);
+      var stripCls=nbDus===0?"":nbTouches===nbDus?" paid-all":nbTouches>0?" paid-part":"";
       return "<div class='swipe'><button class='swipe-del' data-del='"+m.id+"'>🗑 Suppr.</button>"
         +"<div class='strip"+stripCls+"' data-id='"+m.id+"'>"
         +"<div class='date'><div class='d num'>"+day+"</div>"+(isRange?"<div class='rng num'>→ "+endDay+" "+endMon+"</div>":"<div class='m'>"+mon+"</div>")+"</div>"
@@ -687,60 +722,6 @@
   function fmtShort(s){var d=s.split("-");return (d[2]||"")+" "+(d[1]?MONTHS[parseInt(d[1],10)-1]:"");}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
-
-  /* === Solde à l'air — année militaire sept→août === */
-  var SOLDE_MIN_H=5, SOLDE_ANN_H=40;
-  var MIL_MONTHS=["sept.","oct.","nov.","déc.","janv.","févr.","mars","avr.","mai","juin","juil.","août"];
-  var selSoldeAnnee="";
-  function soldeYears(){
-    var ys={};
-    miss.forEach(function(m){ var d=m.debut||""; if(!d)return; var y=parseInt(d.slice(0,4),10),mo=parseInt(d.slice(5,7),10); ys[String(mo>=9?y:y-1)]=1; });
-    var arr=Object.keys(ys).filter(Boolean).sort().reverse();
-    var now=new Date(),y=now.getFullYear(),mo=now.getMonth()+1;
-    var curYm=String(mo>=9?y:y-1);
-    if(arr.indexOf(curYm)<0)arr.unshift(curYm);
-    return arr;
-  }
-  function buildSoldeSelect(){
-    var arr=soldeYears(),s=$("soldeAnnee");
-    if(!selSoldeAnnee||arr.indexOf(selSoldeAnnee)<0)selSoldeAnnee=arr[0];
-    s.innerHTML=arr.map(function(y){return "<option value='"+y+"'>Sept "+y+" – Août "+(+y+1)+"</option>";}).join("");
-    s.value=selSoldeAnnee;
-  }
-  function milMonth(dateISO){
-    var y=parseInt(dateISO.slice(0,4),10),mo=parseInt(dateISO.slice(5,7),10);
-    return {ym:String(mo>=9?y:y-1),idx:mo>=9?mo-9:mo+3};
-  }
-  function renderSolde(){
-    buildSoldeSelect();
-    var now=new Date(),y=now.getFullYear(),mo=now.getMonth()+1;
-    var curYm=mo>=9?y:y-1, curMilIdx=mo>=9?mo-9:mo+3;
-    var mois=Array(12).fill(0);
-    miss.forEach(function(m){
-      (m.legs||[]).forEach(function(l){
-        var d=l.date||m.debut||""; if(!d)return;
-        var mp=milMonth(d);
-        if(mp.ym!==selSoldeAnnee)return;
-        mois[mp.idx]+=(l.jourMin||0)+(l.nuitMin||0);
-      });
-    });
-    var totalMin=mois.reduce(function(a,b){return a+b;},0);
-    var totalH=totalMin/60;
-    var pct=Math.min(100,Math.round(totalH/SOLDE_ANN_H*100));
-    var fillCls=totalH>=SOLDE_ANN_H?"ok":(totalH>=SOLDE_ANN_H*0.6?"warn":"nok");
-    $("soldeTotal").textContent=hm(totalMin);
-    $("soldeFill").className="solde-bar-fill "+fillCls;
-    $("soldeFill").style.width=pct+"%";
-    $("soldeStatus").textContent=totalH>=SOLDE_ANN_H?"✓ Solde débloquée":hm(Math.max(0,SOLDE_ANN_H*60-totalMin))+" restants";
-    var isCur=(selSoldeAnnee===String(curYm));
-    $("soldeGrid").innerHTML=MIL_MONTHS.map(function(mName,i){
-      var min=mois[i],h=min/60;
-      var isFuture=isCur&&i>curMilIdx,isCurrent=isCur&&i===curMilIdx;
-      var cls="smth"+(min>0?(h>=SOLDE_MIN_H?" ok":" nok"):isFuture?" future":(!isCur||isCurrent||i<curMilIdx)?" nok":"");
-      return "<div class='"+cls+"'><div class='sm'>"+mName+(isCurrent?" ◆":"")+"</div><div class='sh num'>"+(min>0?hm(min):isFuture?"—":"0h")+"</div></div>";
-    }).join("");
-  }
-
   function renderAll(){buildYear();renderCluster();renderList();renderSolde();}
 
   /* ---- sheet mission ---- */
@@ -751,7 +732,7 @@
     return "<div class='leg' data-i='"+i+"'>"
       +"<div class='lh'><b>Leg "+(i+1)+((l.dep||l.arr)?" · "+esc((l.dep||"")+"/"+(l.arr||"")):"")+"</b><button type='button' class='rm' data-rm='"+i+"'>retirer</button></div>"
       +"<div style='display:flex;gap:8px;margin-bottom:8px'>"
-        +"<label style='flex:1'><span class='l'>Dép.</span><input type='text' class='icao' data-f='dep' maxlength='4' placeholder='LFMI' autocapitalize='characters' autocomplete='off' value='"+esc(l.dep||"")+"'></label>"+"<label style='flex:1'><span class='l'>Arr.</span><input type='text' class='icao' data-f='arr' maxlength='4' placeholder='NWWW' autocapitalize='characters' autocomplete='off' value='"+esc(l.arr||"")+"'></label>"+"<label style='flex:1.4'><span class='l'>Date</span><input type='date' data-f='date' min='"+(($("mDebut")||{}).value||"")+"' max='"+(($("mFin")||{}).value||"")+"' value='"+(l.date||"")+"'></label>"
+        +"<label style='flex:2'><span class='l'>Date</span><input type='date' data-f='date' min='"+(($("mDebut")||{}).value||"")+"' max='"+(($("mFin")||{}).value||"")+"' value='"+(l.date||"")+"'></label>"
         +"<label style='flex:1'><span class='l'>Code</span><input type='text' data-f='code' inputmode='numeric' placeholder='30' value='"+(l.code||"")+"'></label>"
       +"</div>"
       +"<div class='qr'>"
@@ -762,7 +743,6 @@
           +"<input type='number' data-f='nh' inputmode='numeric' min='0' placeholder='h' value='"+(l.nuitMin?Math.floor(l.nuitMin/60):"")+"'>"
           +"<input type='number' data-f='nm' inputmode='numeric' min='0' max='59' placeholder='min' value='"+(l.nuitMin?l.nuitMin%60:"")+"'></div></label>"
       +"</div>"
-      +"<div class='bloc-row'>"+"<label><span class='l'>Bloc OFF (UTC)</span><input type='time' data-f='blocOff' value='"+( l.blocOff||"")+"' ></label>"+"<span class='bloc-sep'>→</span>"+"<label><span class='l'>Bloc ON (UTC)</span><input type='time' data-f='blocOn' value='"+( l.blocOn||"")+"' ></label>"+"</div>"
       +"<div style='display:flex;gap:8px;margin:9px 0 0'>"
         +"<label style='flex:1.4'><span class='l'>Pays (si diff.)</span><input type='text' data-f='pays' list='paysList' placeholder='—' value='"+esc(l.pays||"")+"'></label>"
         +"<label style='flex:1'><span class='l'>Repas midi</span><input type='number' data-f='lmidi' inputmode='numeric' min='0' placeholder='0' value='"+(l.midi||"")+"'></label>"
@@ -790,8 +770,6 @@
   }
   function syncLeg(i,el){
     var g=function(f){return el.querySelector("[data-f='"+f+"']").value;};
-    tmpLegs[i].dep=(g("dep")||"" ).trim().toUpperCase();
-    tmpLegs[i].arr=(g("arr")||"" ).trim().toUpperCase();
     tmpLegs[i].date=g("date");
     tmpLegs[i].code=(g("code")||"").trim();
     tmpLegs[i].jourMin=(parseInt(g("jh"),10)||0)*60+(parseInt(g("jm"),10)||0);
@@ -949,9 +927,10 @@
   /* ---- export ---- */
   function exportCSV(){
     var rows=miss.filter(inYear).slice().sort(function(a,b){return (a.debut||"").localeCompare(b.debut||"");});
-    var head=["Arrivee","Depart","Mission","Territoire","Legs","H jour","H nuit","Codes","Annuites","Repas midi","Taux midi","Repas soir","Taux soir","Repas EUR","Decouches","Taux ISAO","ISAO EUR","ISSE eligible","Jours ISSE","ISSE EUR","Total EUR","Rembourse EUR"];
+    var head=["Arrivee","Depart","Mission","Territoire","Legs","H jour","H nuit","Codes","Annuites","Repas midi","Taux midi","Repas soir","Taux soir","Repas EUR","Decouches","Taux ISAO","ISAO EUR","ISSE eligible","Jours ISSE","ISSE EUR","Total EUR","Remb repas","Remb ISAO","Remb ISSE"];
     var L=[head.join(";")];
     var dn=function(n){return (n||0).toFixed(2).replace(".",",");};
+    var dr=function(v){return (v!=null&&v!=="")?dn(+v):"";};
     var codesOf=function(m){var s={};(m.legs||[]).forEach(function(l){if(l.code)s[l.code]=1;});return Object.keys(s).join("/");};
     rows.forEach(function(m){
       var c=calc(m);
@@ -960,12 +939,12 @@
         c.totMidi,dn(m.tMidi),c.totSoir,dn(m.tSoir),dn(c.eRepas),
         m.dec||0,c.isaoTaux,dn(c.eIsao),
         m.isseElig?"oui":"non",c.isseJours,dn(c.eIsse),dn(c.eTotal),
-        (m.remb!=null&&m.remb!=="")?dn(+m.remb):""].join(";"));
+        dr(m.remb),dr(m.rembIsao),dr(m.rembIsse)].join(";"));
     });
     var t=totals();
     L.push("");
     L.push(["TOTAUX",selYear==="all"?"toutes":selYear,"","",(rows.length),hm(t.jMin),hm(t.nMin),"",dn(t.ann),
-      t.midi,"",t.soir,"",dn(t.eRepas),t.dec,t.isaoTaux,dn(t.eIsao),"",t.isse,dn(t.eIsse),dn(t.eTotal),dn(t.remb)].join(";"));
+      t.midi,"",t.soir,"",dn(t.eRepas),t.dec,t.isaoTaux,dn(t.eIsao),"",t.isse,dn(t.eIsse),dn(t.eTotal),dn(t.remb),dn(t.rembIsao),dn(t.rembIsse)].join(";"));
     var blob=new Blob(["\ufeff"+L.join("\n")],{type:"text/csv;charset=utf-8"});
     var url=URL.createObjectURL(blob),a=document.createElement("a");
     a.href=url; a.download="carnet-vol-"+(selYear==="all"?"complet":selYear)+".csv";
@@ -1146,6 +1125,41 @@
       st[k]=Math.max(0,(st[k]||0)+d); setSteppers();
     });
   });
+  function renderSuivi(){
+    var t=totals();
+    $("suiviPeriode").textContent="Période : "+(selYear==="all"?"toutes les années":selYear);
+    function bloc(label,prevu,percu){
+      if(prevu<=0&&percu<=0)return "";
+      var pct=prevu>0?Math.min(100,Math.round(percu/prevu*100)):100;
+      var fc=pct>=100?"ok":(pct>=50?"warn":"nok");
+      var reste=Math.max(0,prevu-percu);
+      return "<div class='suivi-bloc'><div class='suivi-head'><span class='t'>"+label+"</span><span class='v num'>"+euro(percu)+" <small>/ "+euro(prevu)+"</small></span></div>"
+        +"<div class='suivi-bar'><div class='suivi-fill "+fc+"' style='width:"+pct+"%'></div></div>"
+        +"<div class='suivi-detail'><span>"+pct+" % perçu</span><b>"+(reste>0.005?euro(reste)+" à percevoir":"✓ Tout perçu")+"</b></div></div>";
+    }
+    var out=bloc("🍴 Repas",t.eRepas,t.remb)+bloc("ISAO",t.eIsao,t.rembIsao)+bloc("ISSE",t.eIsse,t.rembIsse)
+      +bloc("💰 Total",t.eTotal,t.remb+t.rembIsao+t.rembIsse);
+    var late=miss.filter(inYear).filter(function(m){
+      var c=calc(m);
+      return (c.eRepas>0&&(m.remb==null||m.remb===""))||(c.eIsao>0&&(m.rembIsao==null||m.rembIsao===""))||(c.eIsse>0&&(m.rembIsse==null||m.rembIsse===""));
+    }).sort(function(a,b){return (b.debut||"").localeCompare(a.debut||"");});
+    if(late.length){
+      out+="<span class='seclab' style='margin-top:6px'>"+late.length+" mission"+(late.length>1?"s":"")+" en attente</span>";
+      late.forEach(function(m){
+        var c=calc(m), miss_=[];
+        if(c.eRepas>0&&(m.remb==null||m.remb===""))miss_.push("repas "+euro(c.eRepas));
+        if(c.eIsao>0&&(m.rembIsao==null||m.rembIsao===""))miss_.push("ISAO "+euro(c.eIsao));
+        if(c.eIsse>0&&(m.rembIsse==null||m.rembIsse===""))miss_.push("ISSE "+euro(c.eIsse));
+        out+="<div style='padding:9px 0;border-bottom:1px solid var(--line)'><div style='font-weight:600'>"+esc(m.lib||"Mission")+" <span style='color:var(--muted);font-weight:500;font-size:12px'>"+(m.debut||"")+"</span></div>"
+          +"<div style='font-size:12.5px;color:var(--danger)'>"+miss_.join(" · ")+"</div></div>";
+      });
+    }
+    $("suiviContent").innerHTML=out;
+  }
+  $("btnSuivi").addEventListener("click",function(){renderSuivi();show($("ovSuivi"));});
+  $("suiviClose").addEventListener("click",function(){hide($("ovSuivi"));});
+  $("btnHelp").addEventListener("click",function(){show($("ovHelp"));});
+  $("helpClose").addEventListener("click",function(){ hide($("ovHelp")); try{localStorage.setItem("cv_help_seen","1");}catch(e){} });
   $("btnSettings").addEventListener("click",openS);
   $("setCancel").addEventListener("click",function(){hide($("ovS"));});
   $("setSave").addEventListener("click",saveS);
@@ -1154,38 +1168,65 @@
   $("btnDoc").addEventListener("click",function(){ $("docArea").value=load(KDOC,""); renderDocList(); show($("ovD")); });
   $("docClose").addEventListener("click",function(){hide($("ovD"));});
   $("docArea").addEventListener("input",function(){ save(KDOC,this.value); var d=$("docSaved"); d.textContent="Enregistré ✓"; clearTimeout(d._t); d._t=setTimeout(function(){d.textContent="Enregistrement automatique.";},1200); });
-  /* === Backup sans crypto (compatible Documents app) === */
+  function _b64(u){var s="",i;for(i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s);}
+  function _ub64(str){var bin=atob(str),u=new Uint8Array(bin.length),i;for(i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
+  function _dl(name,txt){var b=new Blob([txt],{type:"application/octet-stream"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href);},1500);}
   function _readText(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result));};r.onerror=rej;r.readAsText(file);});}
-  function _dl(name,txt){try{var b=new Blob([txt],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href);},1500);return true;}catch(e){return false;}}
-  function backupData(){return JSON.stringify({app:"carnet-vol",v:4,date:new Date().toISOString(),miss:load(KEY,[]),taux:load(KSET,{}),doc:load(KDOC,""),fx:load(KFX,{})});}
-  function restoreData(txt){
-    var data;try{data=JSON.parse(txt);}catch(e){toast("Fichier invalide");return;}
-    if(!data||!data.miss){toast("Format non reconnu");return;}
-    save(KEY,data.miss||[]); save(KSET,data.taux||{}); save(KDOC,data.doc||""); save(KFX,data.fx||{});
-    toast((data.miss||[]).length+" mission(s) restaurée(s) ✓");
-    setTimeout(function(){location.reload();},1200);
+  function _cryptoOK(){return !!(window.crypto&&crypto.subtle&&window.isSecureContext);}
+  function _key(pw,salt,use){return crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]).then(function(km){return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:120000,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,[use]);});}
+  function backupExport(){
+    if(!_cryptoOK()){ alert("Le chiffrement nécessite la version en ligne (https). Héberge l'app puis réessaie."); return; }
+    var pw=prompt("Choisis un mot de passe pour chiffrer la sauvegarde :"); if(!pw)return;
+    var data={app:"carnet-vol",v:4,date:new Date().toISOString(),miss:load(KEY,[]),taux:load(KSET,{}),doc:load(KDOC,""),fx:load(KFX,{})};
+    var salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+    _key(pw,salt,"encrypt").then(function(key){ return crypto.subtle.encrypt({name:"AES-GCM",iv:iv},key,new TextEncoder().encode(JSON.stringify(data))); })
+      .then(function(ct){ _dl("carnet-vol-"+new Date().toISOString().slice(0,10)+".cvbak", JSON.stringify({s:_b64(salt),i:_b64(iv),d:_b64(new Uint8Array(ct))})); toast("Sauvegarde chiffrée exportée"); })
+      .catch(function(){ alert("Échec du chiffrement."); });
+  }
+  function backupImport(file){
+    if(!_cryptoOK()){ alert("Le déchiffrement nécessite la version en ligne (https)."); return; }
+    _readText(file).then(function(txt){
+      var o; try{ o=JSON.parse(txt); }catch(e){ alert("Fichier invalide."); return; }
+      var pw=prompt("Mot de passe de la sauvegarde :"); if(!pw)return;
+      _key(pw,_ub64(o.s),"decrypt").then(function(key){ return crypto.subtle.decrypt({name:"AES-GCM",iv:_ub64(o.i)},key,_ub64(o.d)); })
+        .then(function(pt){ var data=JSON.parse(new TextDecoder().decode(pt));
+          if(!confirm("Restaurer "+((data.miss||[]).length)+" mission(s) ? Les données actuelles seront remplacées.")) return;
+          save(KEY,data.miss||[]); save(KSET,data.taux||{}); save(KDOC,data.doc||""); save(KFX,data.fx||{}); location.reload(); })
+        .catch(function(){ alert("Échec : mot de passe incorrect ou fichier corrompu."); });
+    });
+  }
+  function bkData(){return JSON.stringify({app:"carnet-vol",v:4,date:new Date().toISOString(),miss:load(KEY,[]),taux:load(KSET,{}),doc:load(KDOC,""),fx:load(KFX,{})});}
+  var _bkArmed=false;
+  function bkApply(txt,msgEl){
+    var data; try{ data=JSON.parse(String(txt||"").trim()); }catch(e){ msgEl.textContent="❌ Texte illisible : copie bien tout le texte."; return; }
+    if(data&&data.s&&data.i&&data.d){ msgEl.textContent="❌ C'est une ancienne sauvegarde chiffrée : refais « Copier mes données » sur l'ancienne version."; return; }
+    if(!data||!Array.isArray(data.miss)){ msgEl.textContent="❌ Ce n'est pas une sauvegarde du carnet."; return; }
+    if(!_bkArmed){ _bkArmed=true; msgEl.textContent="⚠️ "+data.miss.length+" mission(s) trouvée(s). Elles remplaceront les données actuelles. Appuie encore pour confirmer."; $("bkRestore").textContent="✅ Confirmer la restauration"; return; }
+    save(KEY,data.miss); if(data.taux)save(KSET,data.taux); if(data.doc!=null)save(KDOC,data.doc); if(data.fx)save(KFX,data.fx);
+    msgEl.textContent="✓ Restauré, rechargement…"; setTimeout(function(){location.reload();},700);
   }
   $("btnBackup").addEventListener("click",function(){
-    $("bkDataSection").style.display="none"; $("bkDataText").value=""; $("bkDataText").readOnly=true;
-    $("bkCopyBtn").textContent="📋 Copier dans le presse-papier";
-    $("bkCopyStatus").textContent=""; show($("ovB"));
+    _bkArmed=false; $("bkRestore").textContent="📥 Restaurer ces données"; $("bkInMsg").textContent=""; $("bkCopyMsg").textContent="";
+    $("bkOut").style.display="none"; show($("ovB"));
   });
   $("bkClose").addEventListener("click",function(){hide($("ovB"));});
+  $("bkShow").addEventListener("click",function(){
+    var txt=bkData(), ta=$("bkOut"); ta.value=txt; ta.style.display="block";
+    function manual(){ ta.focus(); ta.select(); try{ta.setSelectionRange(0,txt.length);}catch(e){}
+      var ok=false; try{ok=document.execCommand("copy");}catch(e){}
+      $("bkCopyMsg").textContent=ok?"✓ Copié ! Va sur la nouvelle version → ⇄ Sauv. → colle dans la case 2.":"Appuie longuement dans la case → Tout sélectionner → Copier."; }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){ $("bkCopyMsg").textContent="✓ Copié ("+load(KEY,[]).length+" missions) ! Va sur la nouvelle version → ⇄ Sauv. → colle dans la case 2."; },manual); }
+    else manual();
+  });
+  $("bkIn").addEventListener("input",function(){ _bkArmed=false; $("bkRestore").textContent="📥 Restaurer ces données"; $("bkInMsg").textContent=""; });
+  $("bkRestore").addEventListener("click",function(){ bkApply($("bkIn").value,$("bkInMsg")); });
   $("bkExport").addEventListener("click",function(){
-    var json=backupData(); _dl("carnet-vol-"+new Date().toISOString().slice(0,10)+".json",json);
-    $("bkDataText").value=json; $("bkDataSection").style.display="block";
-  });
-  $("bkCopyBtn").addEventListener("click",function(){
-    var txt=$("bkDataText").value;
-    function fb(){var ta=$("bkDataText");ta.select();ta.setSelectionRange(0,99999);try{document.execCommand("copy");$("bkCopyStatus").textContent="✓ Copié !";}catch(e){$("bkCopyStatus").textContent="Appuie longuement → Sélectionner tout → Copier.";}}
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){$("bkCopyStatus").textContent="✓ Copié ! Colle dans Chrome → ⇄ Sauv. → Coller & restaurer.";}).catch(fb);}else{fb();}
-  });
-  $("bkPasteBtn").addEventListener("click",function(){
-    function manual(){$("bkDataText").value="";$("bkDataText").placeholder="Colle ta sauvegarde ici";$("bkDataText").readOnly=false;$("bkCopyBtn").textContent="✅ Restaurer ce texte";$("bkCopyBtn").onclick=function(){restoreData($("bkDataText").value);};$("bkCopyStatus").textContent="Colle puis appuie sur Restaurer.";$("bkDataSection").style.display="block";}
-    if(navigator.clipboard&&navigator.clipboard.readText){navigator.clipboard.readText().then(function(t){restoreData(t);}).catch(manual);}else{manual();}
+    try{ var b=new Blob([bkData()],{type:"application/json"}),a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="carnet-vol-"+new Date().toISOString().slice(0,10)+".json"; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+    catch(e){ toast("Téléchargement impossible ici : utilise « Copier mes données »"); }
   });
   $("bkImport").addEventListener("click",function(){$("bkFile").value="";$("bkFile").click();});
-  $("bkFile").addEventListener("change",function(e){if(e.target.files&&e.target.files[0])_readText(e.target.files[0]).then(restoreData);});
+  $("bkFile").addEventListener("change",function(e){ var f=e.target.files&&e.target.files[0]; if(!f)return;
+    var r=new FileReader(); r.onload=function(){ $("bkIn").value=String(r.result); _bkArmed=false; bkApply(r.result,$("bkInMsg")); }; r.readAsText(f); });
   /* ---- documents PDF (IndexedDB, hors-ligne) ---- */
   var _DB=null;
   function idb(cb){ if(_DB){cb(_DB);return;} try{ var rq=indexedDB.open("cv_docs",1); rq.onupgradeneeded=function(e){ e.target.result.createObjectStore("docs",{keyPath:"id"}); }; rq.onsuccess=function(e){ _DB=e.target.result; cb(_DB); }; rq.onerror=function(){ alert("Stockage des documents indisponible sur ce navigateur."); }; }catch(e){ alert("Stockage des documents indisponible."); } }
@@ -1202,104 +1243,16 @@
   $("btnExport").addEventListener("click",exportCSV);
   $("btnImport").addEventListener("click",function(){$("fileImport").value="";$("fileImport").click();});
   $("fileImport").addEventListener("change",function(e){ if(e.target.files&&e.target.files[0])handleImportFile(e.target.files[0]); });
-  $("year").addEventListener("change",function(){selYear=this.value;renderCluster();renderList();renderSolde();});
+  $("year").addEventListener("change",function(){selYear=this.value;renderCluster();renderList();});
   $("soldeAnnee").addEventListener("change",function(){selSoldeAnnee=this.value;renderSolde();});
   [].forEach.call(document.querySelectorAll(".overlay"),function(o){
     o.addEventListener("click",function(e){if(e.target===o)hide(o);});
   });
 
   $("paysList").innerHTML=PAYS_RATES.map(function(e){var r=mealEUR(e);return "<option value=\""+e.n+"\">"+(r!=null?r.toFixed(2).replace(".",",")+" \u20AC/repas":e.c)+"</option>";}).join("");
-  attachSheetDrag($("ovM")); attachSheetDrag($("ovS")); attachSheetDrag($("ovSuivi")); attachSheetDrag($("ovD")); attachSheetDrag($("ovB"));
-  /* === Suivi des primes === */
-  function renderSuivi(){
-    var t=totals();
-    var yr=selYear==="all"?"toutes les années":selYear;
-    $("suiviPeriode").textContent="Période : "+yr+" · "+t.eTotal.toLocaleString("fr-FR",{minimumFractionDigits:2})+" € prévus au total";
-
-    function bloc(cls,label,prevu,percu,unit){
-      var pct=prevu>0?Math.min(100,Math.round(percu/prevu*100)):0;
-      var fillCls=pct>=100?"ok":pct>=50?"warn":"nok";
-      var reste=Math.max(0,prevu-percu);
-      return "<div class='suivi-bloc "+cls+"'>"
-        +"<div class='suivi-head'><span class='t'>"+label+"</span><span class='v num'>"+euro(percu)+" <small style='font-size:13px;font-weight:600;color:var(--muted)'>/ "+euro(prevu)+"</small></span></div>"
-        +"<div class='suivi-bar'><div class='suivi-bar-fill "+fillCls+"' style='width:"+pct+"%'></div></div>"
-        +"<div class='suivi-detail'><span>"+pct+"% perçu</span><b>"+(reste>0?euro(reste)+" restants":"✓ Tout perçu")+"</b></div>"
-        +"</div>";
-    }
-
-    var html="";
-    if(t.eRepas>0) html+=bloc("repas","🍴 Repas",t.eRepas,t.remb,"€");
-    if(t.eIsao>0)  html+=bloc("isao","ISAO",t.eIsao,t.rembIsao,"€");
-    if(t.eIsse>0)  html+=bloc("isse","ISSE",t.eIsse,t.rembIsse,"€");
-    
-    var totalPercu=t.remb+t.rembIsao+t.rembIsse;
-    html+=bloc("total","💰 Total toutes primes",t.eTotal,totalPercu,"€");
-
-    // Missions avec solde partielle
-    var partial=miss.filter(inYear).filter(function(m){
-      var c=calc(m);
-      var rR=m.remb!=null&&m.remb!=="",rI=m.rembIsao!=null&&m.rembIsao!=="",rIs=m.rembIsse!=null&&m.rembIsse!=="";
-      var hasRepas=c.eRepas>0,hasIsao=c.eIsao>0,hasIsse=c.eIsse>0;
-      var nbDus=(hasRepas?1:0)+(hasIsao?1:0)+(hasIsse?1:0);
-      var nbTouches=(rR&&hasRepas?1:0)+(rI&&hasIsao?1:0)+(rIs&&hasIsse?1:0);
-      return nbDus>0&&nbTouches<nbDus;
-    });
-    if(partial.length>0){
-      html+="<div style='margin-top:4px'><span style='font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700'>"+partial.length+" mission"+(partial.length>1?"s":"")+" avec paiement incomplet</span>";
-      html+=partial.map(function(m){
-        var c=calc(m);
-        return "<div style='padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center'>"
-          +"<div><div style='font-size:14px;font-weight:600'>"+(m.lib||"Mission")+"</div>"
-          +"<div style='font-size:11.5px;color:var(--muted)'>"+(m.debut||"")+(m.fin&&m.fin!==m.debut?" → "+m.fin:"")+"</div></div>"
-          +"<div style='text-align:right'>"
-          +(c.eRepas>0?"<div style='font-size:11.5px;color:var(--muted)'>Repas "+(m.remb!=null&&m.remb!==""?"✓":"❌")+"</div>":"")
-          +(c.eIsao>0?"<div style='font-size:11.5px;color:var(--muted)'>ISAO "+(m.rembIsao!=null&&m.rembIsao!==""?"✓":"❌")+"</div>":"")
-          +(c.eIsse>0?"<div style='font-size:11.5px;color:var(--muted)'>ISSE "+(m.rembIsse!=null&&m.rembIsse!==""?"✓":"❌")+"</div>":"")
-          +"</div></div>";
-      }).join("")+"</div>";
-    }
-
-    if(!html) html="<p style='text-align:center;color:var(--muted);padding:24px 0'>Aucune indemnité calculée pour cette période.</p>";
-    $("suiviContent").innerHTML=html;
-  }
-
+  attachSheetDrag($("ovM")); attachSheetDrag($("ovS")); attachSheetDrag($("ovD")); attachSheetDrag($("ovB")); attachSheetDrag($("ovSuivi")); attachSheetDrag($("ovHelp"));
   renderAll();
-
-  /* === Welcome screen === */
-  var KWELCOME="cv_welcomed_v1";
-  function closeWelcome(openTaux){var w=$("welcome");if(w)w.classList.add("hidden");try{localStorage.setItem(KWELCOME,"1");}catch(e){}if(openTaux)setTimeout(function(){openS();},300);}
-  var _welcomed=false;try{_welcomed=!!localStorage.getItem(KWELCOME);}catch(e){}
-  var _ww=$("welcome");
-  if(_ww&&!_welcomed&&(!miss||miss.length===0)) _ww.classList.remove("hidden");
-  var _ws=$("welcomeStart"),_wk=$("welcomeSkip");
-  if(_ws)_ws.addEventListener("click",function(){closeWelcome(true);});
-  if(_wk)_wk.addEventListener("click",function(){closeWelcome(false);});
-
-
-  /* === Bouton mise à jour === */
-  $("btnUpdate").addEventListener("click",function(){
-    var b=$("btnUpdate");
-    b.textContent="↺ …";
-    b.disabled=true;
-    if("serviceWorker" in navigator && navigator.serviceWorker.controller){
-      // Vider tous les caches et recharger
-      caches.keys().then(function(keys){
-        return Promise.all(keys.map(function(k){ return caches.delete(k); }));
-      }).then(function(){
-        navigator.serviceWorker.getRegistrations().then(function(regs){
-          return Promise.all(regs.map(function(r){ return r.unregister(); }));
-        }).then(function(){
-          location.reload(true);
-        });
-      });
-    } else {
-      location.reload(true);
-    }
-  });
-
-  /* === Service Worker === */
-  if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}
-
+  try{ if(!miss.length && !localStorage.getItem("cv_help_seen")) show($("ovHelp")); }catch(e){}
 })();
 </script>
 </body>
