@@ -10,8 +10,6 @@
 <link rel="manifest" href="manifest.json">
 <title>Carnet de vol</title>
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <style>
   :root{
     --ink:#0B1F3A; --ink-2:#13294B; --paper:#EEF1F5; --card:#FFFFFF;
@@ -147,6 +145,11 @@
   .set-row .sl small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
   .set-row input{width:92px;text-align:right}
   .set-grp{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-deep);font-weight:700;margin:16px 0 2px}
+
+  .tag.t-ok-isao{background:rgba(201,130,27,.22);color:var(--amber-deep)}
+  .tag.t-ok-isse{background:rgba(91,107,214,.20);color:var(--night)}
+  .strip.paid-all{border-left:3px solid var(--teal)}
+  .strip.paid-part{border-left:3px solid var(--amber)}
 </style>
 </head>
 <body>
@@ -159,6 +162,17 @@
   </div>
   <div class="cluster" id="cluster"></div>
   <div class="reimb" id="reimb"></div>
+  <div class="solde-block">
+    <div class="solde-title">
+      Solde à l'air — Sept. → Sept.
+      <select id="soldeAnnee" class="sel-annee"></select>
+    </div>
+    <div class="solde-bar-wrap">
+      <div class="solde-bar-label"><span>Heures <b id="soldeTotal">0h00</b> / 40h00</span><span id="soldeStatus"></span></div>
+      <div class="solde-bar"><div class="solde-bar-fill" id="soldeFill" style="width:0%"></div></div>
+    </div>
+    <div class="solde-grid" id="soldeGrid"></div>
+  </div>
 </header>
 
 <div class="wrap">
@@ -178,90 +192,32 @@
 <button class="fab" id="btnAdd" aria-label="Ajouter une mission">+</button>
 <div class="toast" id="toast"></div>
 
-
 <!-- Welcome screen -->
-<style>
-  .welcome{position:fixed;inset:0;z-index:80;background:#0B1F3A;display:flex;flex-direction:column;overflow-y:auto;padding:calc(env(safe-area-inset-top)+28px) 22px calc(env(safe-area-inset-bottom)+28px)}
-  .welcome.hidden{display:none}
-  .welcome-logo{font-size:64px;line-height:1;text-align:center;margin-bottom:6px}
-  .welcome h2{color:#fff;font-size:24px;font-weight:800;margin:0 0 5px;text-align:center}
-  .welcome .sub{color:#A9BBD4;font-size:13.5px;margin:0 0 20px;line-height:1.5;text-align:center}
-  .wsect{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6A8099;font-weight:700;margin:14px 0 7px}
-  .wstep{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
-  .wstep.hi{background:rgba(232,163,61,.13);border-color:rgba(232,163,61,.28)}
-  .wstep.bad{background:rgba(192,57,43,.11);border-color:rgba(192,57,43,.28)}
-  .wstep .ic{font-size:20px;flex:0 0 auto;line-height:1;margin-top:1px}
-  .wstep .wt b{display:block;color:#fff;font-size:13.5px;margin-bottom:3px}
-  .wstep .wt span,.wstep .wt ol{color:#A9BBD4;font-size:12.5px;line-height:1.6}
-  .wstep .wt ol{margin:6px 0 0;padding-left:16px}
-  .wstep .wt ol li{margin-bottom:2px}
-  .wstep .wt code{background:rgba(255,255,255,.14);color:#fff;border-radius:5px;padding:1px 6px;font-size:12px}
-  .welcome-start{margin-top:18px;width:100%;padding:16px;border-radius:14px;border:none;background:#E8A33D;color:#0B1F3A;font-size:16px;font-weight:800}
-  .welcome-start:active{transform:scale(.97)}
-  .welcome-skip{margin-top:10px;width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#8FA0B5;font-size:13px;font-weight:600}
-</style>
 <div class="welcome hidden" id="welcome">
   <div class="welcome-logo">✈️</div>
   <h2>Carnet de vol</h2>
   <p class="sub">Vols · Indemnités · Remboursements<br>100 % hors ligne</p>
-
   <div class="wsect">⚠️ Installe l'appli correctement</div>
   <div class="wstep bad">
     <div class="ic">🚫</div>
-    <div class="wt">
-      <b>N'utilise pas Safari</b>
-      <span>Safari efface les données après 7 jours sans utilisation. Tes missions disparaîtraient.</span>
-    </div>
+    <div class="wt"><b>N'utilise pas Safari</b><span>Safari efface les données après 7 jours. Utilise Chrome.</span></div>
   </div>
   <div class="wstep hi">
     <div class="ic">📱</div>
-    <div class="wt">
-      <b>iPhone — installer avec Chrome</b>
-      <span>Télécharge Chrome depuis l'App Store si besoin, puis :</span>
-      <ol>
-        <li>Ouvre cette page dans <b>Chrome</b></li>
-        <li>Bouton <code>⋮</code> en bas à droite</li>
-        <li><b>Ajouter à l'écran d'accueil</b></li>
-        <li>L'icône 🇫🇷 apparaît sur ton écran</li>
-      </ol>
+    <div class="wt"><b>iPhone — Chrome</b>
+      <ol><li>Ouvre cette page dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
     </div>
   </div>
   <div class="wstep hi">
     <div class="ic">🤖</div>
-    <div class="wt">
-      <b>Android — installer avec Chrome</b>
-      <ol>
-        <li>Ouvre cette page dans <b>Chrome</b></li>
-        <li>Bouton <code>⋮</code> en haut à droite</li>
-        <li><b>Ajouter à l'écran d'accueil</b></li>
-        <li>Ou accepte la bannière d'installation en bas</li>
-      </ol>
+    <div class="wt"><b>Android — Chrome</b>
+      <ol><li>Ouvre dans <b>Chrome</b></li><li>Bouton <code>⋮</code> → <b>Ajouter à l'écran d'accueil</b></li></ol>
     </div>
   </div>
-
   <div class="wsect">Pour commencer</div>
-  <div class="wstep">
-    <div class="ic">⚙️</div>
-    <div class="wt">
-      <b>1 — Configure tes taux</b>
-      <span>Bouton ⚙︎ Taux → ISAO, ISSE, codes nature de service (30 → 2j/4n…), taux repas par défaut.</span>
-    </div>
-  </div>
-  <div class="wstep">
-    <div class="ic">📄</div>
-    <div class="wt">
-      <b>2 — Importe ton carnet PDF</b>
-      <span>Bouton ⤒ Import → sélectionne ton PDF. Vols et codes créés automatiquement.</span>
-    </div>
-  </div>
-  <div class="wstep">
-    <div class="ic">💾</div>
-    <div class="wt">
-      <b>Sauvegarde régulièrement</b>
-      <span>Bouton ⇄ Sauv. → Exporter → garde ce fichier JSON précieusement pour restaurer tes données.</span>
-    </div>
-  </div>
-
+  <div class="wstep"><div class="ic">⚙️</div><div class="wt"><b>1 — Configure tes taux</b><span>Bouton ⚙︎ Taux → ISAO, ISSE, codes (30→2j/4n…), taux repas.</span></div></div>
+  <div class="wstep"><div class="ic">📄</div><div class="wt"><b>2 — Importe ton carnet PDF</b><span>Bouton ⤒ Import → PDF → vols créés automatiquement.</span></div></div>
+  <div class="wstep"><div class="ic">💾</div><div class="wt"><b>Sauvegarde régulièrement</b><span>Bouton ⇄ Sauv. → Exporter → garde ce fichier JSON.</span></div></div>
   <button class="welcome-start" id="welcomeStart">C'est parti → configurer mes taux</button>
   <button class="welcome-skip" id="welcomeSkip">J'ai déjà des données, passer</button>
 </div>
@@ -316,7 +272,22 @@
     </div>
     <p class="hint" id="autoHint"></p>
 
-    <label class="fld"><span class="l">Repas remboursé constaté (€) — optionnel</span><input type="number" id="mRemb" inputmode="decimal" step="0.01" placeholder="laisser vide si non remboursé"></label>
+    <span class="seclab" style="margin-top:4px">Suivi des remboursements</span>
+    <div class="grid2">
+      <div>
+        <span class="l">Repas remboursé (€)</span>
+        <input type="number" id="mRemb" inputmode="decimal" step="0.01" placeholder="—">
+      </div>
+      <div>
+        <span class="l">ISAO remboursé (€)</span>
+        <input type="number" id="mRembIsao" inputmode="decimal" step="0.01" placeholder="—">
+      </div>
+    </div>
+    <div style="max-width:50%;margin-top:8px">
+      <span class="l">ISSE remboursé (€)</span>
+      <input type="number" id="mRembIsse" inputmode="decimal" step="0.01" placeholder="—">
+    </div>
+    <p class="hint">Laisse vide si pas encore perçu. La mission passe verte quand tout est touché, orange si partiel.</p>
 
     <div class="actions">
       <button type="button" class="btn-del" id="btnDelete" style="display:none">Suppr.</button>
@@ -388,11 +359,22 @@
   <div class="sheet">
     <div class="grip"></div>
     <h3>⇄ Sauvegarde &amp; transfert</h3>
-    <p class="sub3">Sauvegarde chiffrée de toutes tes données. Pour passer d'un appareil à l'autre : exporte ici, envoie le fichier (AirDrop ou ton iCloud Drive), puis « Restaurer » sur l'autre appareil. Rien ne passe par un serveur tiers.</p>
-    <button type="button" class="btn btn-primary" id="bkExport" style="width:100%;margin-bottom:10px">🔒 Exporter une sauvegarde chiffrée</button>
-    <button type="button" class="btn btn-ghost" id="bkImport" style="width:100%">📥 Restaurer depuis un fichier</button>
-    <input type="file" id="bkFile" accept=".cvbak,application/json,text/plain" style="display:none">
-    <p class="hint" style="margin-top:12px">Fichier protégé par ton mot de passe (AES-256). Garde ce mot de passe : sans lui, la sauvegarde est illisible.</p>
+    <p class="sub3">Exporte tes données pour les transférer vers Chrome / GitHub Pages.</p>
+    <div id="bkExportSection">
+      <button type="button" class="btn btn-primary" id="bkExport" style="width:100%;margin-bottom:10px">📋 Afficher mes données à copier</button>
+      <p class="hint">Appuie → sélectionne tout → copie → colle dans Chrome (⇄ Sauv. → Coller &amp; restaurer).</p>
+    </div>
+    <div id="bkDataSection" style="display:none">
+      <p class="hint" style="margin-bottom:6px">Appuie longuement → <b>Sélectionner tout</b> → <b>Copier</b></p>
+      <textarea id="bkDataText" readonly style="width:100%;height:130px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--text);font-size:11px;font-family:monospace;resize:none"></textarea>
+      <button type="button" class="btn btn-primary" id="bkCopyBtn" style="width:100%;margin-top:8px">📋 Copier dans le presse-papier</button>
+      <p class="hint" id="bkCopyStatus" style="text-align:center;margin-top:6px"></p>
+    </div>
+    <div style="height:1px;background:var(--line);margin:14px 0"></div>
+    <button type="button" class="btn btn-ghost" id="bkImport" style="width:100%;margin-bottom:8px">📥 Restaurer depuis un fichier</button>
+    <button type="button" class="btn btn-ghost" id="bkPasteBtn" style="width:100%">📋 Coller &amp; restaurer</button>
+    <input type="file" id="bkFile" accept=".json,.cvbak,text/plain" style="display:none">
+    <p class="hint" style="margin-top:10px">« Coller &amp; restaurer » : colle le texte copié depuis l'ancienne version.</p>
     <div class="actions" style="margin-top:8px"><button type="button" class="btn btn-ghost" id="bkClose">Fermer</button></div>
   </div>
 </div>
@@ -530,7 +512,7 @@
   }
   function totals(){
     var t={volMin:0,jMin:0,nMin:0,ann:0,midi:0,soir:0,dec:0,isaoTaux:0,isse:0,
-           eRepas:0,eIsao:0,eIsse:0,eTotal:0,remb:0,nbRemb:0};
+           eRepas:0,eIsao:0,eIsse:0,eTotal:0,remb:0,rembIsao:0,rembIsse:0};
     miss.filter(inYear).forEach(function(m){
       var c=calc(m);
       t.volMin+=c.volMin; t.jMin+=c.jMin; t.nMin+=c.nMin; t.ann+=c.ann;
@@ -555,9 +537,10 @@
       +gauge("ISAO",t.isaoTaux+" tx",euro(t.eIsao),null)
       +gauge("ISSE",t.isse+" j",euro(t.eIsse),null)
       +gauge("Vol de nuit",hm(t.nMin),"",null);
-    $("reimb").innerHTML = t.eRepas>0
-      ? "Repas remboursés : <b>"+euro(t.remb)+"</b> sur "+euro(t.eRepas)+" prévus"
-      : "";
+    $("reimb").innerHTML=
+      (t.eRepas>0?"<span>🍴 "+euro(t.remb)+" / "+euro(t.eRepas)+"</span>":"")
+      +(t.eIsao>0?"<span style='margin-left:10px'>ISAO "+euro(t.rembIsao)+" / "+euro(t.eIsao)+"</span>":"")
+      +(t.eIsse>0?"<span style='margin-left:10px'>ISSE "+euro(t.rembIsse)+" / "+euro(t.eIsse)+"</span>":"");
   }
 
   /* ---- liste ---- */
@@ -586,7 +569,7 @@
       if(c.eIsse) tags+="<span class='tag t-isse'>ISSE "+euro(c.eIsse)+"</span>";
       if(m.remb!=null&&m.remb!=="") tags+="<span class='tag t-ok'>✓ "+euro(+m.remb)+"</span>";
       return "<div class='swipe'><button class='swipe-del' data-del='"+m.id+"'>🗑 Suppr.</button>"
-        +"<div class='strip' data-id='"+m.id+"'>"
+        +"<div class='strip"+stripCls+"' data-id='"+m.id+"'>"
         +"<div class='date'><div class='d num'>"+day+"</div>"+(isRange?"<div class='rng num'>→ "+endDay+" "+endMon+"</div>":"<div class='m'>"+mon+"</div>")+"</div>"
         +"<div class='mid'><div class='lib"+(m.lib?"":" empty")+"'>"+(m.lib?esc(m.lib):"Mission")+"</div>"
         +"<div class='sub'>"+(m.terr?esc(m.terr):"")+"</div>"
@@ -602,7 +585,54 @@
   function fmtShort(s){var d=s.split("-");return (d[2]||"")+" "+(d[1]?MONTHS[parseInt(d[1],10)-1]:"");}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
-  function renderAll(){buildYear();renderCluster();renderList();}
+
+  /* === Solde à l'air — année militaire sept→août === */
+  var SOLDE_MIN_H=5, SOLDE_ANN_H=40;
+  var MIL_MONTHS=["sept.","oct.","nov.","déc.","janv.","févr.","mars","avr.","mai","juin","juil.","août"];
+  var selSoldeAnnee="";
+  function soldeYears(){
+    var ys={};
+    miss.forEach(function(m){ var d=m.debut||""; if(!d)return; var y=parseInt(d.slice(0,4),10),mo=parseInt(d.slice(5,7),10); ys[String(mo>=9?y:y-1)]=1; });
+    var arr=Object.keys(ys).filter(Boolean).sort().reverse();
+    var now=new Date(),y=now.getFullYear(),mo=now.getMonth()+1;
+    var curYm=String(mo>=9?y:y-1);
+    if(arr.indexOf(curYm)<0)arr.unshift(curYm);
+    return arr;
+  }
+  function buildSoldeSelect(){
+    var arr=soldeYears(),s=$("soldeAnnee");
+    if(!selSoldeAnnee||arr.indexOf(selSoldeAnnee)<0)selSoldeAnnee=arr[0];
+    s.innerHTML=arr.map(function(y){return "<option value='"+y+"'>Sept "+y+" – Août "+(+y+1)+"</option>";}).join("");
+    s.value=selSoldeAnnee;
+  }
+  function milMonth(dateISO){
+    var y=parseInt(dateISO.slice(0,4),10),mo=parseInt(dateISO.slice(5,7),10);
+    return {ym:String(mo>=9?y:y-1),idx:mo>=9?mo-9:mo+3};
+  }
+  function renderSolde(){
+    buildSoldeSelect();
+    var now=new Date(),y=now.getFullYear(),mo=now.getMonth()+1;
+    var curYm=mo>=9?y:y-1, curMilIdx=mo>=9?mo-9:mo+3;
+    var mois=Array(12).fill(0);
+    miss.forEach(function(m){ var d=m.debut||""; if(!d)return; var mp=milMonth(d); if(mp.ym!==selSoldeAnnee)return; mois[mp.idx]+=calc(m).volMin; });
+    var totalMin=mois.reduce(function(a,b){return a+b;},0);
+    var totalH=totalMin/60;
+    var pct=Math.min(100,Math.round(totalH/SOLDE_ANN_H*100));
+    var fillCls=totalH>=SOLDE_ANN_H?"ok":(totalH>=SOLDE_ANN_H*0.6?"warn":"nok");
+    $("soldeTotal").textContent=hm(totalMin);
+    $("soldeFill").className="solde-bar-fill "+fillCls;
+    $("soldeFill").style.width=pct+"%";
+    $("soldeStatus").textContent=totalH>=SOLDE_ANN_H?"✓ Solde débloquée":hm(Math.max(0,SOLDE_ANN_H*60-totalMin))+" restants";
+    var isCur=(selSoldeAnnee===String(curYm));
+    $("soldeGrid").innerHTML=MIL_MONTHS.map(function(mName,i){
+      var min=mois[i],h=min/60;
+      var isFuture=isCur&&i>curMilIdx,isCurrent=isCur&&i===curMilIdx;
+      var cls="smth"+(min>0?(h>=SOLDE_MIN_H?" ok":" nok"):isFuture?" future":(!isCur||isCurrent||i<curMilIdx)?" nok":"");
+      return "<div class='"+cls+"'><div class='sm'>"+mName+(isCurrent?" ◆":"")+"</div><div class='sh num'>"+(min>0?hm(min):isFuture?"—":"0h")+"</div></div>";
+    }).join("");
+  }
+
+  function renderAll(){buildYear();renderCluster();renderList();renderSolde();}
 
   /* ---- sheet mission ---- */
   var editId=null, tmpLegs=[], st={midi:0,soir:0,dec:0,isse:0,isseElig:false};
@@ -612,7 +642,7 @@
     return "<div class='leg' data-i='"+i+"'>"
       +"<div class='lh'><b>Leg "+(i+1)+((l.dep||l.arr)?" · "+esc((l.dep||"")+"/"+(l.arr||"")):"")+"</b><button type='button' class='rm' data-rm='"+i+"'>retirer</button></div>"
       +"<div style='display:flex;gap:8px;margin-bottom:8px'>"
-        +"<label style='flex:2'><span class='l'>Date</span><input type='date' data-f='date' min='"+(($("mDebut")||{}).value||"")+"' max='"+(($("mFin")||{}).value||"")+"' value='"+(l.date||"")+"'></label>"
+        +"<label style='flex:1'><span class='l'>Dép.</span><input type='text' class='icao' data-f='dep' maxlength='4' placeholder='LFMI' autocapitalize='characters' autocomplete='off' value='"+esc(l.dep||"")+"'></label>"+"<label style='flex:1'><span class='l'>Arr.</span><input type='text' class='icao' data-f='arr' maxlength='4' placeholder='NWWW' autocapitalize='characters' autocomplete='off' value='"+esc(l.arr||"")+"'></label>"+"<label style='flex:1.4'><span class='l'>Date</span><input type='date' data-f='date' min='"+(($("mDebut")||{}).value||"")+"' max='"+(($("mFin")||{}).value||"")+"' value='"+(l.date||"")+"'></label>"
         +"<label style='flex:1'><span class='l'>Code</span><input type='text' data-f='code' inputmode='numeric' placeholder='30' value='"+(l.code||"")+"'></label>"
       +"</div>"
       +"<div class='qr'>"
@@ -623,6 +653,7 @@
           +"<input type='number' data-f='nh' inputmode='numeric' min='0' placeholder='h' value='"+(l.nuitMin?Math.floor(l.nuitMin/60):"")+"'>"
           +"<input type='number' data-f='nm' inputmode='numeric' min='0' max='59' placeholder='min' value='"+(l.nuitMin?l.nuitMin%60:"")+"'></div></label>"
       +"</div>"
+      +"<div class='bloc-row'>"+"<label><span class='l'>Bloc OFF (UTC)</span><input type='time' data-f='blocOff' value='"+( l.blocOff||"")+"' ></label>"+"<span class='bloc-sep'>→</span>"+"<label><span class='l'>Bloc ON (UTC)</span><input type='time' data-f='blocOn' value='"+( l.blocOn||"")+"' ></label>"+"</div>"
       +"<div style='display:flex;gap:8px;margin:9px 0 0'>"
         +"<label style='flex:1.4'><span class='l'>Pays (si diff.)</span><input type='text' data-f='pays' list='paysList' placeholder='—' value='"+esc(l.pays||"")+"'></label>"
         +"<label style='flex:1'><span class='l'>Repas midi</span><input type='number' data-f='lmidi' inputmode='numeric' min='0' placeholder='0' value='"+(l.midi||"")+"'></label>"
@@ -650,6 +681,8 @@
   }
   function syncLeg(i,el){
     var g=function(f){return el.querySelector("[data-f='"+f+"']").value;};
+    tmpLegs[i].dep=(g("dep")||"" ).trim().toUpperCase();
+    tmpLegs[i].arr=(g("arr")||"" ).trim().toUpperCase();
     tmpLegs[i].date=g("date");
     tmpLegs[i].code=(g("code")||"").trim();
     tmpLegs[i].jourMin=(parseInt(g("jh"),10)||0)*60+(parseInt(g("jm"),10)||0);
@@ -701,6 +734,8 @@
     $("mTMidi").value=m?(m.tMidi||""):(taux.defMidi||"");
     $("mTSoir").value=m?(m.tSoir||""):(taux.defSoir||"");
     $("mRemb").value=(m&&m.remb!=null)?m.remb:"";
+    $("mRembIsao").value=(m&&m.rembIsao!=null)?m.rembIsao:"";
+    $("mRembIsse").value=(m&&m.rembIsse!=null)?m.rembIsse:"";
     tmpLegs=m?(m.legs||[]).map(function(l){return {id:l.id||uid(),date:l.date,jourMin:l.jourMin||0,nuitMin:l.nuitMin||0,dep:l.dep||"",arr:l.arr||"",code:l.code||"",pays:l.pays||"",midi:l.midi||0,soir:l.soir||0,tMidi:(l.tMidi!=null&&l.tMidi!==""?l.tMidi:(m.tMidi||taux.defMidi||0)),tSoir:(l.tSoir!=null&&l.tSoir!==""?l.tSoir:(m.tSoir||taux.defSoir||0))};}):[newLeg()];
     if(!tmpLegs.length)tmpLegs=[newLeg()];
     st={midi:m?(m.midi||0):0,soir:m?(m.soir||0):0,dec:m?(m.dec||0):0,isse:m?(m.isse||0):0,isseElig:m?!!m.isseElig:false};
@@ -727,7 +762,9 @@
       coefJ:prev?(prev.coefJ||0):0, coefN:prev?(prev.coefN||0):0, tMidi:pf("mTMidi"), tSoir:pf("mTSoir"),
       midi:st.midi, soir:st.soir, dec:st.dec,
       isseElig:st.isseElig, isse:st.isseElig?st.isse:0,
-      remb: rv===""?null:(parseFloat(rv.replace(",","."))||0),
+      remb:    (function(){var v=$("mRemb").value.trim();    return v===""?null:(parseFloat(v.replace(",","."))||0);})(),
+      rembIsao:(function(){var v=$("mRembIsao").value.trim();return v===""?null:(parseFloat(v.replace(",","."))||0);})(),
+      rembIsse:(function(){var v=$("mRembIsse").value.trim();return v===""?null:(parseFloat(v.replace(",","."))||0);})(),
       _imp: prev?prev._imp:undefined
     };
     if(editId) miss=miss.map(function(x){return x.id===editId?obj:x;});
@@ -1008,38 +1045,38 @@
   $("btnDoc").addEventListener("click",function(){ $("docArea").value=load(KDOC,""); renderDocList(); show($("ovD")); });
   $("docClose").addEventListener("click",function(){hide($("ovD"));});
   $("docArea").addEventListener("input",function(){ save(KDOC,this.value); var d=$("docSaved"); d.textContent="Enregistré ✓"; clearTimeout(d._t); d._t=setTimeout(function(){d.textContent="Enregistrement automatique.";},1200); });
-  function _b64(u){var s="",i;for(i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s);}
-  function _ub64(str){var bin=atob(str),u=new Uint8Array(bin.length),i;for(i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
-  function _dl(name,txt){var b=new Blob([txt],{type:"application/octet-stream"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href);},1500);}
+  /* === Backup sans crypto (compatible Documents app) === */
   function _readText(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result));};r.onerror=rej;r.readAsText(file);});}
-  function _cryptoOK(){return !!(window.crypto&&crypto.subtle&&window.isSecureContext);}
-  function _key(pw,salt,use){return crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]).then(function(km){return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:120000,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,[use]);});}
-  function backupExport(){
-    if(!_cryptoOK()){ alert("Le chiffrement nécessite la version en ligne (https). Héberge l'app puis réessaie."); return; }
-    var pw=prompt("Choisis un mot de passe pour chiffrer la sauvegarde :"); if(!pw)return;
-    var data={app:"carnet-vol",v:4,date:new Date().toISOString(),miss:load(KEY,[]),taux:load(KSET,{}),doc:load(KDOC,""),fx:load(KFX,{})};
-    var salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
-    _key(pw,salt,"encrypt").then(function(key){ return crypto.subtle.encrypt({name:"AES-GCM",iv:iv},key,new TextEncoder().encode(JSON.stringify(data))); })
-      .then(function(ct){ _dl("carnet-vol-"+new Date().toISOString().slice(0,10)+".cvbak", JSON.stringify({s:_b64(salt),i:_b64(iv),d:_b64(new Uint8Array(ct))})); toast("Sauvegarde chiffrée exportée"); })
-      .catch(function(){ alert("Échec du chiffrement."); });
+  function _dl(name,txt){try{var b=new Blob([txt],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href);},1500);return true;}catch(e){return false;}}
+  function backupData(){return JSON.stringify({app:"carnet-vol",v:4,date:new Date().toISOString(),miss:load(KEY,[]),taux:load(KSET,{}),doc:load(KDOC,""),fx:load(KFX,{})});}
+  function restoreData(txt){
+    var data;try{data=JSON.parse(txt);}catch(e){toast("Fichier invalide");return;}
+    if(!data||!data.miss){toast("Format non reconnu");return;}
+    save(KEY,data.miss||[]); save(KSET,data.taux||{}); save(KDOC,data.doc||""); save(KFX,data.fx||{});
+    toast((data.miss||[]).length+" mission(s) restaurée(s) ✓");
+    setTimeout(function(){location.reload();},1200);
   }
-  function backupImport(file){
-    if(!_cryptoOK()){ alert("Le déchiffrement nécessite la version en ligne (https)."); return; }
-    _readText(file).then(function(txt){
-      var o; try{ o=JSON.parse(txt); }catch(e){ alert("Fichier invalide."); return; }
-      var pw=prompt("Mot de passe de la sauvegarde :"); if(!pw)return;
-      _key(pw,_ub64(o.s),"decrypt").then(function(key){ return crypto.subtle.decrypt({name:"AES-GCM",iv:_ub64(o.i)},key,_ub64(o.d)); })
-        .then(function(pt){ var data=JSON.parse(new TextDecoder().decode(pt));
-          if(!confirm("Restaurer "+((data.miss||[]).length)+" mission(s) ? Les données actuelles seront remplacées.")) return;
-          save(KEY,data.miss||[]); save(KSET,data.taux||{}); save(KDOC,data.doc||""); save(KFX,data.fx||{}); location.reload(); })
-        .catch(function(){ alert("Échec : mot de passe incorrect ou fichier corrompu."); });
-    });
-  }
-  $("btnBackup").addEventListener("click",function(){show($("ovB"));});
+  $("btnBackup").addEventListener("click",function(){
+    $("bkDataSection").style.display="none"; $("bkDataText").value=""; $("bkDataText").readOnly=true;
+    $("bkCopyBtn").textContent="📋 Copier dans le presse-papier";
+    $("bkCopyStatus").textContent=""; show($("ovB"));
+  });
   $("bkClose").addEventListener("click",function(){hide($("ovB"));});
-  $("bkExport").addEventListener("click",backupExport);
+  $("bkExport").addEventListener("click",function(){
+    var json=backupData(); _dl("carnet-vol-"+new Date().toISOString().slice(0,10)+".json",json);
+    $("bkDataText").value=json; $("bkDataSection").style.display="block";
+  });
+  $("bkCopyBtn").addEventListener("click",function(){
+    var txt=$("bkDataText").value;
+    function fb(){var ta=$("bkDataText");ta.select();ta.setSelectionRange(0,99999);try{document.execCommand("copy");$("bkCopyStatus").textContent="✓ Copié !";}catch(e){$("bkCopyStatus").textContent="Appuie longuement → Sélectionner tout → Copier.";}}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){$("bkCopyStatus").textContent="✓ Copié ! Colle dans Chrome → ⇄ Sauv. → Coller & restaurer.";}).catch(fb);}else{fb();}
+  });
+  $("bkPasteBtn").addEventListener("click",function(){
+    function manual(){$("bkDataText").value="";$("bkDataText").placeholder="Colle ta sauvegarde ici";$("bkDataText").readOnly=false;$("bkCopyBtn").textContent="✅ Restaurer ce texte";$("bkCopyBtn").onclick=function(){restoreData($("bkDataText").value);};$("bkCopyStatus").textContent="Colle puis appuie sur Restaurer.";$("bkDataSection").style.display="block";}
+    if(navigator.clipboard&&navigator.clipboard.readText){navigator.clipboard.readText().then(function(t){restoreData(t);}).catch(manual);}else{manual();}
+  });
   $("bkImport").addEventListener("click",function(){$("bkFile").value="";$("bkFile").click();});
-  $("bkFile").addEventListener("change",function(e){ if(e.target.files&&e.target.files[0])backupImport(e.target.files[0]); });
+  $("bkFile").addEventListener("change",function(e){if(e.target.files&&e.target.files[0])_readText(e.target.files[0]).then(restoreData);});
   /* ---- documents PDF (IndexedDB, hors-ligne) ---- */
   var _DB=null;
   function idb(cb){ if(_DB){cb(_DB);return;} try{ var rq=indexedDB.open("cv_docs",1); rq.onupgradeneeded=function(e){ e.target.result.createObjectStore("docs",{keyPath:"id"}); }; rq.onsuccess=function(e){ _DB=e.target.result; cb(_DB); }; rq.onerror=function(){ alert("Stockage des documents indisponible sur ce navigateur."); }; }catch(e){ alert("Stockage des documents indisponible."); } }
@@ -1056,7 +1093,8 @@
   $("btnExport").addEventListener("click",exportCSV);
   $("btnImport").addEventListener("click",function(){$("fileImport").value="";$("fileImport").click();});
   $("fileImport").addEventListener("change",function(e){ if(e.target.files&&e.target.files[0])handleImportFile(e.target.files[0]); });
-  $("year").addEventListener("change",function(){selYear=this.value;renderCluster();renderList();});
+  $("year").addEventListener("change",function(){selYear=this.value;renderCluster();renderList();renderSolde();});
+  $("soldeAnnee").addEventListener("change",function(){selSoldeAnnee=this.value;renderSolde();});
   [].forEach.call(document.querySelectorAll(".overlay"),function(o){
     o.addEventListener("click",function(e){if(e.target===o)hide(o);});
   });
@@ -1065,29 +1103,19 @@
   attachSheetDrag($("ovM")); attachSheetDrag($("ovS")); attachSheetDrag($("ovD")); attachSheetDrag($("ovB"));
   renderAll();
 
-  /* === Service Worker PWA === */
-  if("serviceWorker" in navigator){
-    navigator.serviceWorker.register("sw.js").catch(function(){});
-  }
-
-  /* === Welcome screen (premier lancement) === */
+  /* === Welcome screen === */
   var KWELCOME="cv_welcomed_v1";
-  function closeWelcome(openTaux){
-    var w=document.getElementById("welcome");
-    if(w) w.classList.add("hidden");
-    try{localStorage.setItem(KWELCOME,"1");}catch(e){}
-    if(openTaux) setTimeout(function(){openS();},300);
-  }
-  var _welcomed=false;
-  try{_welcomed=!!localStorage.getItem(KWELCOME);}catch(e){}
-  var w=document.getElementById("welcome");
-  if(w && !_welcomed && (!miss||miss.length===0)){
-    w.classList.remove("hidden");
-  }
-  var _ws=document.getElementById("welcomeStart");
-  var _wk=document.getElementById("welcomeSkip");
-  if(_ws) _ws.addEventListener("click",function(){closeWelcome(true);});
-  if(_wk) _wk.addEventListener("click",function(){closeWelcome(false);});
+  function closeWelcome(openTaux){var w=$("welcome");if(w)w.classList.add("hidden");try{localStorage.setItem(KWELCOME,"1");}catch(e){}if(openTaux)setTimeout(function(){openS();},300);}
+  var _welcomed=false;try{_welcomed=!!localStorage.getItem(KWELCOME);}catch(e){}
+  var _ww=$("welcome");
+  if(_ww&&!_welcomed&&(!miss||miss.length===0)) _ww.classList.remove("hidden");
+  var _ws=$("welcomeStart"),_wk=$("welcomeSkip");
+  if(_ws)_ws.addEventListener("click",function(){closeWelcome(true);});
+  if(_wk)_wk.addEventListener("click",function(){closeWelcome(false);});
+
+  /* === Service Worker === */
+  if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}
+
 })();
 </script>
 </body>
