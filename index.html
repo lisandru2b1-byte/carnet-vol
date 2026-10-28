@@ -1003,6 +1003,10 @@
     return "<div class='leg' data-i='"+i+"'>"
       +"<div class='lh'><b>Leg "+(i+1)+((l.dep||l.arr)?" · "+esc((l.dep||"")+"/"+(l.arr||"")):"")+"</b><button type='button' class='rm' data-rm='"+i+"'>retirer</button></div>"
       +"<div style='display:flex;gap:8px;margin-bottom:8px'>"
+        +"<label style='flex:1'><span class='l'>Départ</span><input type='text' data-f='dep' maxlength='5' autocapitalize='characters' placeholder='LFMI' value='"+escA(l.dep||"")+"'></label>"
+        +"<label style='flex:1'><span class='l'>Arrivée</span><input type='text' data-f='arr' maxlength='5' autocapitalize='characters' placeholder='OMRK' value='"+escA(l.arr||"")+"'></label>"
+      +"</div>"
+      +"<div style='display:flex;gap:8px;margin-bottom:8px'>"
         +"<label style='flex:2'><span class='l'>Date</span><input type='date' data-f='date' min='"+(($("mDebut")||{}).value||"")+"' max='"+(($("mFin")||{}).value||"")+"' value='"+(l.date||"")+"'></label>"
         +"<label style='flex:1'><span class='l'>Code</span><input type='text' data-f='code' inputmode='numeric' placeholder='30' value='"+(l.code||"")+"'></label>"
       +"</div>"
@@ -1059,6 +1063,8 @@
   function syncLeg(i,el){
     var g=function(f){return el.querySelector("[data-f='"+f+"']").value;};
     tmpLegs[i].date=g("date");
+    tmpLegs[i].dep=(g("dep")||"").trim().toUpperCase();
+    tmpLegs[i].arr=(g("arr")||"").trim().toUpperCase();
     tmpLegs[i].code=(g("code")||"").trim();
     tmpLegs[i].jourMin=(parseInt(g("jh"),10)||0)*60+(parseInt(g("jm"),10)||0);
     tmpLegs[i].nuitMin=(parseInt(g("nh"),10)||0)*60+(parseInt(g("nm"),10)||0);
@@ -1837,7 +1843,7 @@
     h+="<span class='seclab' style='margin-top:18px'>Vols</span><div class='tlist'>";
     o.legs.forEach(function(l){
       var mn=(l.jourMin||0)+(l.nuitMin||0);
-      h+="<div class='tl'><span class='td'>"+(fd(l.date)||"—")+"</span><span class='tx'><b>"+esc((l.dep||"?")+" → "+(l.arr||"?"))+"</b><small>"+hm(mn)+(l.nuitMin?" dont "+hm(l.nuitMin)+" nuit":"")+(l.code?" · code "+esc(l.code):"")+"</small></span></div>";
+      h+="<div class='tl'><span class='td'>"+(fd(l.date)||"—")+"</span><span class='tx'><b>"+((l.dep||l.arr)?esc((l.dep||"?")+" → "+(l.arr||"?")):"Vol")+"</b><small>"+hm(mn)+(l.nuitMin?" dont "+hm(l.nuitMin)+" nuit":"")+(l.code?" · code "+esc(l.code):"")+"</small></span></div>";
     });
     h+="</div>";
     if(c.unknown)h+="<p class='hint' style='color:var(--danger)'>Un code de service est inconnu : ajoute-le dans Plus → Taux &amp; codes.</p>";
