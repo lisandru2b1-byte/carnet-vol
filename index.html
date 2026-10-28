@@ -371,6 +371,13 @@
   .solde-block .solde-title{margin-bottom:10px}
   .view .wrap{max-width:720px;margin:0 auto}
   .calg{max-width:560px;margin:0 auto}
+  .leg:not(.open) .lbody{display:none}
+  .lsum{display:block;width:100%;text-align:left;background:none;border:0;padding:4px 0 6px;color:var(--text);font:inherit;cursor:pointer}
+  .leg.open .lsum{display:none}
+  .lsum .lr{display:flex;justify-content:space-between;align-items:baseline}.lsum .lr b{font-size:23px;font-weight:800;letter-spacing:-.02em}.lsum .lr span{color:var(--muted);font-weight:600;font-size:14px}
+  .lsum .ld{display:block;margin-top:8px;font-weight:600;font-size:15px}
+  .lsum .lc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.lsum .lc i{font-style:normal;border:1px solid var(--line);padding:5px 9px;font-size:12.5px;font-weight:600}
+  .lsum .lm{display:block;margin-top:10px;color:var(--amber);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -999,8 +1006,19 @@
   var editId=null, tmpLegs=[], st={midi:0,soir:0,dec:0,isse:0,isseElig:false};
   var openSwipe=null;
 
+  var legOpen={};
+  function legSum(l,i){
+    var mn=(l.jourMin||0)+(l.nuitMin||0), rt=(l.dep||l.arr)?esc((l.dep||"?")+" \u2192 "+(l.arr||"?")):"Vol "+(i+1);
+    var det=[]; if(mn)det.push(hm(mn)+(l.nuitMin?" dont "+hm(l.nuitMin)+" nuit":" jour")); if(l.code)det.push("Code "+esc(l.code));
+    var chips=[]; if(l.pax)chips.push(l.pax+" pax"); if(l.hServ)chips.push("Service "+esc(l.hServ)); if(l.repasServ)chips.push("Repas servi"); if(l.passeEau)chips.push("Passe d'eau");
+    return "<button type='button' class='lsum'><span class='lr'><b>"+rt+"</b><span>"+(fd(l.date)||"")+"</span></span>"
+      +"<span class='ld'>"+(det.join(" \u00B7 ")||"À compléter")+"</span>"
+      +(chips.length?"<span class='lc'>"+chips.map(function(c){return "<i>"+c+"</i>";}).join("")+"</span>":"")
+      +"<span class='lm'>Modifier</span></button>";
+  }
   function legRow(l,i){
-    return "<div class='leg' data-i='"+i+"'>"
+    return "<div class='leg"+(legOpen[l.id]?" open":"")+"' data-i='"+i+"'>"
+      +legSum(l,i)+"<div class='lbody'>"
       +"<div class='lh'><b>Leg "+(i+1)+((l.dep||l.arr)?" · "+esc((l.dep||"")+"/"+(l.arr||"")):"")+"</b><button type='button' class='rm' data-rm='"+i+"'>retirer</button></div>"
       +"<div style='display:flex;gap:8px;margin-bottom:8px'>"
         +"<label style='flex:1'><span class='l'>Départ</span><input type='text' data-f='dep' maxlength='5' autocapitalize='characters' placeholder='LFMI' value='"+escA(l.dep||"")+"'></label>"
@@ -1028,7 +1046,7 @@
         +"<label style='flex:1'><span class='l'>Taux soir (\u20AC)</span><input type='number' data-f='lts' inputmode='decimal' step='0.01' placeholder='"+(taux.defSoir||0)+"' value='"+(l.tSoir!=null&&l.tSoir!==""?l.tSoir:"")+"'></label>"
       +"</div>"
       +legInfoHtml(l)
-      +"</div>";
+      +"</div></div>";
   }
   function escA(s){return esc(s).replace(/'/g,'&#39;');}
   function legHasInfo(l){return !!(l&&(l.pax||l.hServ||l.repasServ||l.passeEau||l.note));}
@@ -1051,6 +1069,10 @@
       var i=+el.getAttribute("data-i");
       [].forEach.call(el.querySelectorAll("input,textarea"),function(inp){
         inp.addEventListener("input",function(){syncLeg(i,el);});
+      });
+      el.querySelector(".lsum").addEventListener("click",function(){
+        if(el.classList.contains("open")){ syncLeg(i,el); legOpen[tmpLegs[i].id]=false; renderLegs(); }
+        else { legOpen[tmpLegs[i].id]=true; el.classList.add("open"); }
       });
       el.querySelector("[data-rm]").addEventListener("click",function(){
         tmpLegs.splice(i,1); if(!tmpLegs.length)tmpLegs.push(newLeg()); renderLegs();
@@ -1124,6 +1146,7 @@
     $("mRembIsse").value=(m&&m.rembIsse!=null)?m.rembIsse:"";
     tmpLegs=m?(m.legs||[]).map(function(l){return {id:l.id||uid(),date:l.date,jourMin:l.jourMin||0,nuitMin:l.nuitMin||0,dep:l.dep||"",arr:l.arr||"",code:l.code||"",pays:l.pays||"",pax:l.pax||0,hServ:l.hServ||"",repasServ:l.repasServ||"",passeEau:l.passeEau||"",note:l.note||"",midi:l.midi||0,soir:l.soir||0,tMidi:(l.tMidi!=null&&l.tMidi!==""?l.tMidi:(m.tMidi||taux.defMidi||0)),tSoir:(l.tSoir!=null&&l.tSoir!==""?l.tSoir:(m.tSoir||taux.defSoir||0))};}):[newLeg()];
     if(!tmpLegs.length)tmpLegs=[newLeg()];
+    legOpen={}; if(!m)legOpen[tmpLegs[0].id]=true;
     st={midi:m?(m.midi||0):0,soir:m?(m.soir||0):0,dec:m?(m.dec||0):0,isse:m?(m.isse||0):0,isseElig:m?!!m.isseElig:false};
     setIsseUI();
     if(!m){ autoFromDates(); } else { setSteppers(); refreshAutoHint(); }
@@ -1435,7 +1458,7 @@
   });
   $("btnSave").addEventListener("click",saveM);
   $("btnDelete").addEventListener("click",delM);
-  $("addLeg").addEventListener("click",function(){tmpLegs.push(newLeg());renderLegs();});
+  $("addLeg").addEventListener("click",function(){var nl=newLeg();tmpLegs.push(nl);legOpen[nl.id]=true;renderLegs();});
   $("mDebut").addEventListener("change",function(){ if(!editId)autoFromDates(); else refreshAutoHint(); });
   $("mFin").addEventListener("change",function(){ if(!editId)autoFromDates(); else refreshAutoHint(); });
   $("tIsse").addEventListener("click",function(){
