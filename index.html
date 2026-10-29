@@ -1883,23 +1883,30 @@
   try{ if(!miss.length && !localStorage.getItem("cv_help_seen")) show($("ovHelp")); }catch(e){}
   try{ if(miss.length) setTimeout(autoBackupMaybe,1500); }catch(e){}
 
-  /* === Bouton MAJ : force la récupération de la dernière version === */
+  /* === Hors ligne : le service worker garde l'appli en cache === */
+  try{
+    if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    }
+  }catch(e){}
+
+  /* === Bouton MAJ : récupère la dernière version SANS jamais casser le hors-ligne === */
   (function(){
     var b=document.getElementById("btnUpdate");
     if(!b) return;
     b.addEventListener("click",function(){
-      b.textContent="↺ …"; b.disabled=true;
-      function reload(){ location.reload(true); }
-      if("caches" in window){
-        caches.keys().then(function(keys){ return Promise.all(keys.map(function(k){return caches.delete(k);})); })
-          .then(function(){
-            if("serviceWorker" in navigator){
-              navigator.serviceWorker.getRegistrations().then(function(regs){
-                Promise.all(regs.map(function(r){return r.unregister();})).then(reload).catch(reload);
-              }).catch(reload);
-            } else reload();
-          }).catch(reload);
-      } else reload();
+      if(!/^https?:/.test(location.protocol)){ toast("MAJ : ouvre l'appli depuis son lien (pas depuis Documents)."); return; }
+      if(navigator.onLine===false){ toast("Pas de connexion : l'appli reste utilisable hors ligne."); return; }
+      b.disabled=true;
+      var done=function(){ b.disabled=false; };
+      fetch("index.html?maj="+Date.now(),{cache:"no-store"}).then(function(r){
+        if(!r||!r.ok) throw new Error("http");
+        var copy=r.clone();
+        return ("caches" in window ? caches.open("carnet-vol-v6").then(function(c){ return Promise.all([c.put("./index.html",r.clone()),c.put("./",copy)]); }) : Promise.resolve());
+      }).then(function(){
+        return navigator.serviceWorker&&navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration().then(function(reg){ return reg&&reg.update(); }) : null;
+      }).then(function(){ toast("Mise à jour installée ✓"); setTimeout(function(){ location.reload(); },600); })
+      .catch(function(){ done(); toast("MAJ impossible pour l'instant. L'appli reste utilisable."); });
     });
   })();
 })();
